@@ -1,13 +1,17 @@
 // load all the things we need
 //var LocalStrategy   = require('passport-local').Strategy;
-var CasStrategy = require('../passport-kd-cas/lib').Strategy;
+//var CasStrategy = require('../passport-kd-cas/lib').Strategy;
+//var GoogleStrategy = require('passport-google').Strategy;
+//var GooglePlusStrategy = require('passport-google-plus');
 
-var User = require('../model/user');
+var GoogleStrategy = require('../passport-oauth2-clientside/lib').Strategy;
+
+
+//var User = require('../model/user');
 
 //Expoe funcao de configuração:
 // expose this function to our app using module.exports
 module.exports = function(passport) {
-
 
   // =========================================================================
   //                   setup do passport para sessao.
@@ -26,13 +30,47 @@ module.exports = function(passport) {
     done(null, user);
   });
 
+//    // =========================================================================
+//    //            GoogleStrategy
+//    // =========================================================================
+//  passport.use('google', new GoogleStrategy({
+//              returnURL: 'http://www.rault.org:3030/auth/google/return',
+//              realm: 'http://www.rault.org:3030/'
+//          },
+//          function(identifier, profile, done) {
+//              User.findOrCreate({ openId: identifier }, function(err, user) {
+//                  done(err, user);
+//              });
+//          }
+//      )
+//
+//
+//  );
+
+    // =========================================================================
+    //                      estrategia google (criada por nos)
+    // =========================================================================
+    passport.use('google', new GoogleStrategy());
 
 
+//    // =========================================================================
+//    //            GooglePlusStrategy
+//    // =========================================================================
+//    passport.use('googleplus', new GooglePlusStrategy({
+//            clientId: '965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com',
+//            clientSecret: '_rqDu5zzkKvmqja_la8UPhBd'
+//        },
+//        function(tokens, profile, done) {
+//            // Create or update user, call done() when complete...
+//            var user = {profile: profile, tokens: tokens};
+//            done(null, user);
+//        }
+//    ));
 
   // =========================================================================
   //                      estrategia CAS (criada por nos)
   // =========================================================================
-  passport.use('kdcas-validate', new CasStrategy());
+//  passport.use('kdcas-validate', new CasStrategy());
 
 
   // =========================================================================

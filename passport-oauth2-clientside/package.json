@@ -1,0 +1,33 @@
+{
+  "name": "passport-kd-cas",
+  "version": "0.0.0",
+  "main": "./lib",
+  "description": "passport strategy for OAUTH2 using client side workflow",
+  "homepage": "https://github.com/raulcesar/zidecohome-api",
+  "bugs": "https://github.com/raulcesar/zidecohome-api",
+  "author": {
+    "name": "Raul Cesar Teixeira",
+    "email": "raul.teixeira@gmail.com",
+    "url": "www.zideco.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/raulcesar/zidecohome-api"
+  },
+  "license": "MIT",
+  "files": [
+    "lib"
+  ],
+  "keywords": [],
+  "devDependencies": {
+    "grunt-contrib-jshint": "^0.10.0",
+    "grunt-contrib-nodeunit": "^0.3.3",
+    "grunt-contrib-watch": "^0.6.1",
+    "load-grunt-tasks": "^0.4.0",
+    "time-grunt": "^0.3.1",
+    "jshint-stylish": "^0.2.0"
+  },
+  "dependencies": {
+    "passport-strategy": "^1.0.0"
+  }
+}
