@@ -4,8 +4,7 @@
 var passport = require('passport-strategy')
     , util = require('util')
     , lookup = require('./utils').lookup
-    , https = require('https')
-    , http = require('http')
+    , request = require('request')
     , url = require('url');
 
 //var ldapQuerier = require('../../model/ldapQuerier');
@@ -46,13 +45,18 @@ var passport = require('passport-strategy')
 function Strategy(options) {
     if (!options) {
         options = {
-            tockenParm: 'access_token'
+            googleTokenEndpoint: 'https://accounts.google.com/o/oauth2/token',
+            googleTokenInfoEndpoint: 'https://www.googleapis.com/oauth2/v1/tokeninfo',
+            appClientID:'965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com',
+            appClientSecret: '_rqDu5zzkKvmqja_la8UPhBd',
+            appRedirectURI:'http://localhost:3030/auth/google/return/'
         };
     }
 
-    this._tockenParm = options.tockenParm ;
+    this.options = options;
+
     passport.Strategy.call(this);
-    this.name = 'kdcas';
+    this.name = 'googleoauth2clientside';
 }
 
 /**
@@ -70,11 +74,11 @@ util.inherits(Strategy, passport.Strategy);
 Strategy.prototype.authenticate = function (req, options) {
     options = options || {};
 
-    //Get tocken from req
-    var tocken = req.param(this._tockenParm);
+    //Get the code for google authentication.
+    var code = req.param('code');
 
-    //If no tocken, than fail, and allow the "failure" redirect to send user to GOOGLE login page
-    if (!tocken) {
+    //If no code, than fail, and allow the "failure" redirect to send user to GOOGLE login page
+    if (!code) {
         return this.fail({ message: options.badRequestMessage || 'Missing credentials' }, 400);
     }
 
@@ -91,140 +95,117 @@ Strategy.prototype.authenticate = function (req, options) {
     }
 
     try {
-        //Here we will attempt to call the tocken validation at google
+        //Here we will attempt to call the token validation at google
         //Also, send function callback that will "verify" the user.
-        this.tockenValidate(tocken, verified);
+        this.codeValidate(code, verified);
     } catch (ex) {
         return self.error(ex);
     }
 };
 
 
-Strategy.prototype.tockenValidate = function (token, callback) {
-//  var validationpath = url.format({
-//    pathname: 'https://cas.camara.gov.br/cas/validate',
-//    query: {service: service, ticket: ticket}
-//  });
+Strategy.prototype.codeValidate = function (token, callback) {
+    var globalOptions = this.options;
 
-//    var agent = new HttpsProxyAgent({
-//        proxyHost: '192.168.5.8',
-//        proxyPort: 3128
-//    });
+    //Create options to post to google token endpoint and retrieve access token.
+    var optionsForIDToken = {
+        url: globalOptions.googleTokenEndpoint,
+        method: 'POST',
+        json: true,
+        form: {
+            code: this.code,
+            client_id: globalOptions.appClientID,
+            client_secret: globalOptions.appClientSecret,
+            redirect_uri: globalOptions.appRedirectURI,
+            grant_type: 'authorization_code'
+        }
 
-//    var options = {
-//        hostname: 'www.googleapis.com',
-////        port: 443,
-//        path: url.format({
-//            pathname: '/oauth2/v1/tokeninfo',
-//            query: {access_token: token}
-//        }),
-//        method: 'GET'
-//    };
-
-    var options = {
-        hostname: 'localhost',
-        port: 3128,
-        path: url.format({
-            pathname: 'https://www.googleapis.com/oauth2/v1/tokeninfo',
-            query: {access_token: token}
-        }),
-        headers: {
-            Host: "www.googleapis.com"
-        },
-        method: 'GET'
     };
 
-    var body = '';
-    var req = http.request(options, function (res) {
-        console.log('REQUEST STATUS: ' + res.statusCode);
-        console.log('REQUEST HEADERS: ' + JSON.stringify(res.headers));
-        res.setEncoding('utf8');
-        res.on('data', function (chunk) {
-            console.log('BODY: ' + chunk);
-            body += chunk;
+
+
+
+    request(optionsForIDToken,
+        function (error, response, body) {
+            //The body should be a json object representing the returned validated token, or an error.
+            //Check for error
+            if (error) {
+                console.log('problem with token validation request: ' + e.message);
+                callback(error);
+            }
+
+            if (body.error ) {
+                var msg = 'problem with token validation: ' + body.error_description;
+                callback(new Error(msg));
+            }
+
+            if (!body.access_token) {
+                var msg = 'problem with token validation: No access_token';
+                callback(new Error(msg));
+            }
+
+            if (!body.id_token) {
+                var msg = 'problem with token validation: No id_token';
+                callback(new Error(msg));
+            }
+
+            var idToken = body.id_token;
+
+            //Now lets validate the token and get an access token!
+            var optionsForAcessToken = {
+                url: url.format(
+                    {
+                        pathname: globalOptions.googleTokenInfoEndpoint,
+                        query: {id_token: idToken}
+                    }),
+                method: 'GET',
+                json: true
+            };
+
+            request(optionsForAcessToken,
+                function (error, response, body) {
+                    if (error) {
+                        console.log('problem with token validation request: ' + e.message);
+                        callback(error);
+                    }
+
+                    if (body.error ) {
+                        var msg = 'problem with token validation: ' + body.error_description;
+                        callback(new Error(msg));
+                    }
+
+                    if (!body.user_id) {
+                        var msg = 'problem with token validation: No USER_ID';
+                        callback(new Error(msg));
+                    }
+
+                    if (body.audience !== globalOptions.client_id) {
+                        var msg = 'problem with token validation: Audience does not match CLIENT_ID';
+                        callback(new Error(msg));
+                    }
+
+                    if (!body.email_verified) {
+                        var msg = 'Unable to get user email from token validation: ';
+                        console.log(msg);
+                        callback(new Error(msg));
+
+                    }
+
+                    if (!body.email) {
+                        var msg = 'Unable to get user email from token validation: ';
+                        console.log(msg);
+                        callback(new Error(msg));
+                    }
+
+                    var user = {email: body.email};
+
+
+                    //TODO:Validate that user is a valid "zideco user" and complement user data from our stores.
+                    callback(null, user, body);
+                });
+
+
         });
-        res.on('end', function () {
-            console.log("BODY: " + body);
-            //Body will be a json object...
-            var validatedTocken = JSON.parse(body);
-
-            //TODO: check that clienid is correct:
-            //If not: callback('Invalid ClientID', undefined);
-            //get user from tocken:
-            var userEmail = validatedTocken.email;
-
-
-            //TODO: IF UNABLE TO GET USER, RETURN ERROR
-            //TODO: Now get user from our stores, and populate the user object.
-            var user = {email: userEmail};
-            callback(null, user, validatedTocken);
-        });
-
-    });
-
-//    https.get('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token=ya29.kgCQnNopP_uGEfpjTcCoGxC12UA9T4gs_JDun6G6gjyKd9arvzGRU78M',
-//        function(res) {
-//            res.setEncoding('utf8');
-//            res.on('data', function (chunk) {
-//                console.log('BODY: ' + chunk);
-//                body += chunk;
-//            });
-//            res.on('end', function () {
-//                console.log("BODY: " + body);
-//                //Body will be a json object...
-//                var validatedTocken = JSON.parse(body);
-//
-//                //TODO: check that clienid is correct:
-//                //If not: callback('Invalid ClientID', undefined);
-//                //get user from tocken:
-//                var userEmail = validatedTocken.email;
-//
-//
-//                //TODO: IF UNABLE TO GET USER, RETURN ERROR
-//                //TODO: Now get user from our stores, and populate the user object.
-//                var user = {email: userEmail};
-//                callback(null, user, validatedTocken);
-//            });
-//
-//        }
-//    ).on('error', function(e) {
-//            console.log("Got error: " + e.message);
-//        });
-//
-
-//    var req = https.request(options, function (res) {
-//        console.log('REQUEST STATUS: ' + res.statusCode);
-//        console.log('REQUEST HEADERS: ' + JSON.stringify(res.headers));
-//        res.setEncoding('utf8');
-//        res.on('data', function (chunk) {
-//            console.log('BODY: ' + chunk);
-//            body += chunk;
-//        });
-//        res.on('end', function () {
-//            console.log("BODY: " + body);
-//            //Body will be a json object...
-//            var validatedTocken = JSON.parse(body);
-//
-//            //TODO: check that clienid is correct:
-//            //If not: callback('Invalid ClientID', undefined);
-//            //get user from tocken:
-//            var userEmail = validatedTocken.email;
-//
-//
-//            //TODO: IF UNABLE TO GET USER, RETURN ERROR
-//            //TODO: Now get user from our stores, and populate the user object.
-//            var user = {email: userEmail};
-//            callback(null, user, validatedTocken);
-//        });
-//
-//    });
-
-    req.on('error', function (e) {
-        console.log('problem with request: ' + e.message);
-        callback(e);
-    });
-
-    req.end();
 };
 
 

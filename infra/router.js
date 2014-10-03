@@ -1,9 +1,13 @@
 exports.run = function route(app, conf, passport) {
     var _ = require('lodash');
+    var crypto = require('crypto');
+
+
     var resources = conf.application.resources;
     var handlers = {};
 
-    var rotaDeValidacaoDeToken = '/auth/google/return';
+    var rotaDeValidacaoDeToken = conf.application.googleauthcallbackroute;
+
 
     // Funcao MIDDLEWARE que verifica se usuario esta logado.
     // Caso não esteja, será direcionado para validacao de cas.
@@ -13,10 +17,10 @@ exports.run = function route(app, conf, passport) {
             return next();
         }
 
-        // Se não estiver logado, joga para a pagina inicial. Na verdade, aqui, acho que vou enviar um "UNATHORIZED"
+        // Se não estiver logado, joga para a pagina de login do GOOGLE... POSSIVELMENTE vou jogar para uma pagina de login do aplicativo.
         var referer = req.originalUrl;
 
-        res.redirect(conf.application.apiroute + rotaDeValidacaoDeToken + '?referer=' + referer);
+        res.redirect(conf.application.apiroute + "/logingoogle" + '?referer=' + referer);
     }
 
 
@@ -110,12 +114,37 @@ exports.run = function route(app, conf, passport) {
 
         //TODO: Arrumar isso.
 //        var loginaturl = conf.cas.urlbase + '/login?service=' + conf.cas.callbackURL + '?referer=' + referer;
+        //monta statetoken para posterior verificacao.
+        var sess = req.session;
+
+        var buf = crypto.pseudoRandomBytes(256);
+        var md5 = crypto.createHash('md5');
+
+        md5.update(buf);
+        var statetoken = md5.digest('base64') + 'referer=' + referer;
+
+        //put into session for later use.
+        sess.statetoken = statetoken;
+
         var ghommafornow = 'https://accounts.google.com/o/oauth2/auth?\
-scope=email%20profile&\
-state=%2Fprofile&\
-redirect_uri=http://localhost:3030/auth/google/return/&\
-response_type=token&\
-client_id=965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com';
+client_id=965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com&\
+response_type=code&\
+scope=openid%20email&\
+redirect_uri=' + conf.google.callbackurl + '&\
+sate=' + statetoken + '&';
+
+
+//state=security_token%3D138r5719ru3e1%26url%3Dhttp://localhost:3030/protegido&';
+
+//poderia usar isso se quisessimos.
+//login_hint=raul.teixeira@gmail.com';
+
+        //este era para o token
+//scope=email%20profile&\
+//state=security_token%3D138r5719ru3e1%26url%3Dhttp://localhost:3030/protegido&\
+//redirect_uri=http://localhost:3030/auth/google/return/&\
+//response_type=token&\
+//client_id=965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com';
 
 
 //    console.log('entrei no logincas. referer: ' + referer + ' loginaturl: ' + loginaturl + '. Vou retornar 401.');
@@ -124,10 +153,26 @@ client_id=965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.c
 
 
   app.get(rotaDeValidacaoDeToken, function(req, res, next) {
-    var referer = getReferer(req);
+    //aqui é o callback para onde o google direciona o brower.
+    //Vamos primeiro pegar o "state" para validar que está vindo de um cliente válido.
+    var sess = req.session;
 
-      //se houver o "token" como parametro, deve funcionar.
-    passport.authenticate('google',  {service: ''}, function(err, user, info) {
+    var stateFromSession = sess.statetoken;
+    var stateFromRequest = req.param('session_state');
+
+    if (stateFromRequest !== stateFromSession) {
+      return next(new Error('Error validating authentication.'));
+    }
+
+    //Get referer from statetoken (referer=...).
+    var referer = 'about:blank';
+    var strIndex = stateFromRequest.indexOf('referer=');
+    if (strIndex >= 0) {
+      referer = stateFromRequest.split('referer=').pop();
+    }
+
+      //se houver o "codigo" como parametro, deve funcionar.
+    passport.authenticate('googleoauth2clientside',  function(err, user, info) {
       if (err) { return next(err); }
       if (!user) { return res.redirect(conf.application.apiroute + '/logingoogle?referer=' + referer); }
 

@@ -50,7 +50,7 @@ module.exports = function(passport) {
     // =========================================================================
     //                      estrategia google (criada por nos)
     // =========================================================================
-    passport.use('google', new GoogleStrategy());
+    passport.use('googleoauth2clientside', new GoogleStrategy());
 
 
 //    // =========================================================================

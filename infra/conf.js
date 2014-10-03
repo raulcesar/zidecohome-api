@@ -54,6 +54,7 @@ conf.development = {
 
 conf.defaults = {
   application: {
+      googleauthcallbackroute: '/auth/google/return',
     salt: '29654284BUGALA2323SHARE',
     username: 'clangton',
     password: 'GR+adJAdWOxFQMLFHAWPig==',
@@ -94,7 +95,11 @@ conf.defaults = {
   validEnvs: {
     dev: 'development',
     prod: 'production'
+  },
+  google: {
+
   }
+
 
 
 };
@@ -113,11 +118,12 @@ exports.get = function get(env, obj) {
   var settings = tool.cloneextend(conf.defaults, conf[env]);
 
   //Here we can create new configs, based on sessings object.
-//  settings.cas.callbackURL =
-//    settings.application.protocolprefix +
-//    settings.server.fqhost +
-//    settings.application.exposedportprefix +
-//    settings.application.apiroute + '/validacas';
+    //TODO: Change protocolprefix and exposedportprefix to server section.
+    settings.google.callbackurl =
+    settings.application.protocolprefix +
+    settings.server.fqhost +
+    settings.application.exposedportprefix +
+    settings.application.apiroute + '/auth/google/return/';
 
   return ('object' === typeof obj) ? tool.cloneextend(settings, obj) : settings;
 };
