@@ -98,10 +98,10 @@ exports.run = function route(app, conf, passport) {
     });
 
     function getReferer(req) {
-        return req.param('referer') || req.header('referer')  || 'http://srv-cedi-bdi/wiki';
+        return req.param('referer') || req.header('referer') || 'http://srv-cedi-bdi/wiki';
     }
 
-    app.get('/logingoogle', function(req, res) {
+    app.get('/logingoogle', function (req, res) {
         var referer = getReferer(req);
 
         //create cross-site request forgery (CSRF) token
@@ -115,79 +115,78 @@ exports.run = function route(app, conf, passport) {
 
         //put into session for later use.
         sess.statetoken = statetoken;
+        console.log('generated CSRF token: ' + statetoken);
 
 
         var loginurl = conf.google.authenticationendpoint + '?' +
             'client_id=' + conf.google.applicationid + '&' +
-            'response_type=code&'+
+            'response_type=code&' +
             'scope=' + conf.google.authenticationscope + '&' +
             'redirect_uri=' + conf.google.callbackurl + '&' +
             'state=' + statetoken;
-        res.send(401, {loginat: loginurl} );
+        res.send(401, {loginat: loginurl});
     });
 
 
-  app.get(rotaDeValidacaoDeToken, function(req, res, next) {
-    //aqui é o callback para onde o google direciona o brower.
-    //Vamos primeiro pegar o "state" para validar que está vindo de um cliente válido.
-    var sess = req.session;
+    app.get(rotaDeValidacaoDeToken, function (req, res, next) {
+        //aqui é o callback para onde o google direciona o brower.
+        //Vamos primeiro pegar o "state" para validar que está vindo de um cliente válido.
+        var sess = req.session;
 
-    var stateFromSession = sess.statetoken;
-    var stateFromRequest = req.param('state');
+        var stateFromSession = sess.statetoken;
+        var stateFromRequest = req.param('state');
 
-    if (stateFromRequest !== stateFromSession) {
-      return next(new Error('Error validating authentication.'));
-    }
+        if (stateFromRequest !== stateFromSession) {
+            console.log('stateFromRequest: ' + stateFromRequest);
+            console.log('stateFromSession: ' + stateFromSession);
 
-    //Get referer from statetoken (referer=...).
-    var referer = 'about:blank';
-    var strIndex = stateFromRequest.indexOf('referer=');
-    if (strIndex >= 0) {
-      referer = stateFromRequest.split('referer=').pop();
-    }
+            return next(new Error('Error validating authentication.'));
+        }
 
-      //se houver o "codigo" como parametro, deve funcionar.
-    passport.authenticate('googleoauth2clientside',  function(err, user, info) {
-      if (err) { return next(err); }
-      if (!user) { return res.redirect(conf.application.apiroute + '/logingoogle?referer=' + referer); }
+        //Remove CSRF token from session:
+        sess.statetoken = undefined;
 
-      //Se deu tudo certo, ou seja, temos um usuario, entao retorna apenas com
-      //200OK
+        //Get referer from statetoken (referer=...).
+        var referer = 'about:blank';
+        var strIndex = stateFromRequest.indexOf('referer=');
+        if (strIndex >= 0) {
+            referer = stateFromRequest.split('referer=').pop();
+        }
 
-      req.logIn(user, function(err) {
-        if (err) { return next(err); }
+        //se houver o "codigo" como parametro, deve funcionar.
+        passport.authenticate('googleoauth2clientside', function (err, user, info) {
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return res.redirect(conf.application.apiroute + '/logingoogle?referer=' + referer);
+            }
 
+            //Se deu tudo certo, ou seja, temos um usuario, entao retorna apenas com
+            //200OK
 
-//        console.log('entrei no req.logIn. referer: ' + referer + ' usuario: ' + JSON.stringify(user));
-        return res.redirect(referer);
-//        return res.redirect('http://localhost:63342/kd-frontend/app/index.html');
-      });
-    })(req, res, next);
-  });
+            req.logIn(user, function (err) {
+                if (err) {
+                    return next(err);
+                }
 
-
-
-    app.get('/auth/google/return', function(req, res, next) {
-        console.log('chegamos aqui...');
-        //TODO: aqui, temos que ter o tocken, mas
-
-        res.send({yomama:'eats combat boots'});
-        //vamos ver o req, res.
+                return res.redirect(referer);
+            });
+        })(req, res, next);
     });
 
 
-    //TODO: TEMOS QUE TER ESTA
-//  app.get('/logout', function(req, res){
-//    req.logout();
-//    res.send(200);
-//  });
+    //Route exposed by passport.
+    app.get('/logout', function (req, res) {
+        req.logout();
+        res.send(200);
+    });
 
 
-    //TODO: TEMOS QUE TER ESTA
-//  app.get('/usuariocorrente', validaAutenticacao, function(req, res) {
-//    var usu = req.user;
-//    res.json(200, usu);
-//  });
+    app.get('/currentuser', validaAutenticacao, function (req, res) {
+        var usu = req.user;
+        res.json(200, usu);
+    });
 
 
 };
