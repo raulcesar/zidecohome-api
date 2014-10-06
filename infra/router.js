@@ -132,14 +132,12 @@ exports.run = function route(app, conf, passport) {
         //aqui é o callback para onde o google direciona o brower.
         //Vamos primeiro pegar o "state" para validar que está vindo de um cliente válido.
         var sess = req.session;
-
         var stateFromSession = sess.statetoken;
         var stateFromRequest = req.param('state');
 
         if (stateFromRequest !== stateFromSession) {
             console.log('stateFromRequest: ' + stateFromRequest);
             console.log('stateFromSession: ' + stateFromSession);
-
             return next(new Error('Error validating authentication.'));
         }
 
