@@ -6,7 +6,7 @@ exports.run = function route(app, conf, passport) {
     var resources = conf.application.resources;
     var handlers = {};
 
-    var rotaDeValidacaoDeToken = conf.application.googleauthcallbackroute;
+    var rotaDeValidacaoDeToken = conf.google.callbackroute;
 
 
     // Funcao MIDDLEWARE que verifica se usuario esta logado.
@@ -97,14 +97,6 @@ exports.run = function route(app, conf, passport) {
         res.json(200, {'RecursoPublico': 'blablabla...'});
     });
 
-    //Abaixo exemplo com POST passando usuario e senha.
-//  app.post('/login', passport.authenticate('local-login', {
-//    successRedirect : '/yo', // redirect to the secure profile section
-//    failureRedirect : '/login', // redirect back to the signup page if there is an error
-//    failureFlash : false // allow flash messages
-//  }));
-
-
     function getReferer(req) {
         return req.param('referer') || req.header('referer')  || 'http://srv-cedi-bdi/wiki';
     }
@@ -112,9 +104,7 @@ exports.run = function route(app, conf, passport) {
     app.get('/logingoogle', function(req, res) {
         var referer = getReferer(req);
 
-        //TODO: Arrumar isso.
-//        var loginaturl = conf.cas.urlbase + '/login?service=' + conf.cas.callbackURL + '?referer=' + referer;
-        //monta statetoken para posterior verificacao.
+        //create cross-site request forgery (CSRF) token
         var sess = req.session;
 
         var buf = crypto.pseudoRandomBytes(256);
@@ -126,29 +116,14 @@ exports.run = function route(app, conf, passport) {
         //put into session for later use.
         sess.statetoken = statetoken;
 
-        var ghommafornow = 'https://accounts.google.com/o/oauth2/auth?\
-client_id=965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com&\
-response_type=code&\
-scope=openid%20email&\
-redirect_uri=' + conf.google.callbackurl + '&\
-sate=' + statetoken + '&';
 
-
-//state=security_token%3D138r5719ru3e1%26url%3Dhttp://localhost:3030/protegido&';
-
-//poderia usar isso se quisessimos.
-//login_hint=raul.teixeira@gmail.com';
-
-        //este era para o token
-//scope=email%20profile&\
-//state=security_token%3D138r5719ru3e1%26url%3Dhttp://localhost:3030/protegido&\
-//redirect_uri=http://localhost:3030/auth/google/return/&\
-//response_type=token&\
-//client_id=965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com';
-
-
-//    console.log('entrei no logincas. referer: ' + referer + ' loginaturl: ' + loginaturl + '. Vou retornar 401.');
-        res.send(401, {loginat: ghommafornow} );
+        var loginurl = conf.google.authenticationendpoint + '?' +
+            'client_id=' + conf.google.applicationid + '&' +
+            'response_type=code&'+
+            'scope=' + conf.google.authenticationscope + '&' +
+            'redirect_uri=' + conf.google.callbackurl + '&' +
+            'state=' + statetoken;
+        res.send(401, {loginat: loginurl} );
     });
 
 
@@ -158,7 +133,7 @@ sate=' + statetoken + '&';
     var sess = req.session;
 
     var stateFromSession = sess.statetoken;
-    var stateFromRequest = req.param('session_state');
+    var stateFromRequest = req.param('state');
 
     if (stateFromRequest !== stateFromSession) {
       return next(new Error('Error validating authentication.'));

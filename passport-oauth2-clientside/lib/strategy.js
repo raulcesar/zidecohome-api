@@ -104,7 +104,7 @@ Strategy.prototype.authenticate = function (req, options) {
 };
 
 
-Strategy.prototype.codeValidate = function (token, callback) {
+Strategy.prototype.codeValidate = function (code, callback) {
     var globalOptions = this.options;
 
     //Create options to post to google token endpoint and retrieve access token.
@@ -113,7 +113,7 @@ Strategy.prototype.codeValidate = function (token, callback) {
         method: 'POST',
         json: true,
         form: {
-            code: this.code,
+            code: code,
             client_id: globalOptions.appClientID,
             client_secret: globalOptions.appClientSecret,
             redirect_uri: globalOptions.appRedirectURI,
@@ -179,7 +179,7 @@ Strategy.prototype.codeValidate = function (token, callback) {
                         callback(new Error(msg));
                     }
 
-                    if (body.audience !== globalOptions.client_id) {
+                    if (body.audience !== globalOptions.appClientID) {
                         var msg = 'problem with token validation: Audience does not match CLIENT_ID';
                         callback(new Error(msg));
                     }

@@ -54,7 +54,10 @@ conf.development = {
 
 conf.defaults = {
   application: {
-      googleauthcallbackroute: '/auth/google/return',
+
+
+
+
     salt: '29654284BUGALA2323SHARE',
     username: 'clangton',
     password: 'GR+adJAdWOxFQMLFHAWPig==',
@@ -97,7 +100,10 @@ conf.defaults = {
     prod: 'production'
   },
   google: {
-
+      authenticationendpoint: 'https://accounts.google.com/o/oauth2/auth',
+      applicationid: '965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com',
+      authenticationscope:'openid%20email&',
+      callbackroute: '/auth/google/return/'
   }
 
 
@@ -123,7 +129,7 @@ exports.get = function get(env, obj) {
     settings.application.protocolprefix +
     settings.server.fqhost +
     settings.application.exposedportprefix +
-    settings.application.apiroute + '/auth/google/return/';
+    settings.application.apiroute + settings.google.callbackroute;
 
   return ('object' === typeof obj) ? tool.cloneextend(settings, obj) : settings;
 };
