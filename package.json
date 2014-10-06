@@ -19,6 +19,8 @@
     "morgan": "~1.0.0",
     "mysql": "^2.5.1",
     "passport": "^0.2.1",
+    "passport-strategy": "^1.0.0",
+    "request": "^2.44.0",
     "static-favicon": "~1.0.0"
   }
 }

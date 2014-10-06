@@ -25,7 +25,7 @@ var app = express();
 var conf = require('./infra/conf').get(app.settings.env); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
 
 
-//  require('./infra/passportconf')(passport); // pass passport for configuration
+require('./infra/passportconf')(passport); // pass passport for configuration
 
 ///// catch 404 and forward to error handler
 //app.use(function(req, res, next) {

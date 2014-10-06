@@ -107,15 +107,23 @@ function handleDel(connection, req, res) {
 }
 
 
-//function criaCallbacksCustomizados(app, validaAutenticacao) {
-//  var callbacks = [];
-//  if (validaAutenticacao) {
-//    callbacks[0] = validaAutenticacao;
-//  }
-//  callbacks.push(buscaDependentes);
-//  //Exemplo de um callback customizado. No caso um "subrecurso"
-//  app.get('/resumopessoas/:id/dependentes', callbacks);
-//}
+function buscaDependentes(req, res) {
+    res.send({autenticacao: 'ok'});
+}
+
+
+function criaCallbacksCustomizados(app, validaAutenticacao) {
+    var callbacks = [];
+    if (validaAutenticacao) {
+        callbacks[0] = validaAutenticacao;
+    }
+    callbacks.push(buscaDependentes);
+
+//    app.get('/auth/google', passport.authenticate('google'));
+    //Exemplo de um callback customizado. No caso um "subrecurso"
+
+    app.get('/auth/:provider/:status', callbacks);
+}
 
 //Return API
 module.exports = {
@@ -135,9 +143,8 @@ module.exports = {
     del: function (req, res) {
         conexaoMysql.resolveConection(handleDel, req, res);
     }
-
 //    ,
-//    customcallbacks: customcallbacksfunc
+//    customcallbacks: criaCallbacksCustomizados
 };
 
 

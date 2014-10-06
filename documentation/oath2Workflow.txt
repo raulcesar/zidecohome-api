@@ -1,0 +1,40 @@
+
+//ask to authenticate:
+https://accounts.google.com/o/oauth2/auth?
+client_id=965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com&
+response_type=code&
+scope=openid%20email&
+redirect_uri=http://localhost:3030/auth/google/return/&
+state=security_token%3D138r5719ru3e1%26url%3Dhttp://localhost:3030/protegido&
+login_hint=raul.teixeira@gmail.com
+
+//Google returns a redirecto:
+http://localhost:3030/auth/google/return/?
+state=security_token%3D138r5719ru3e1%26url%3Dhttp://localhost:3030/protegido&
+code=4/xKSiVKQzlhVU1URafUyAKD-3edKu.MuD65-WovTcc3oEBd8DOtNC9AQCvkQI&
+authuser=0&
+num_sessions=1&
+prompt=consent&
+session_state=b6bde90aa0373ea617536fd54ae1a1ca7ca3685a..291b
+
+//At server, check that state token is good, and get token from google
+//post to:
+https://accounts.google.com/o/oauth2/token
+
+code	The authorization code that is returned from the initial request.
+client_id	The client ID that you obtain from the Developers Console, as described in Obtain OAuth 2.0 credentials.
+client_secret	The client secret that you obtain from the Developers Console, as described in Obtain OAuth 2.0 credentials.
+redirect_uri	The URI that you specify in the Developers Console, as described in Set a redirect URI.
+grant_type	This field must contain a value of authorization_code, as defined in the OAuth 2.0 specification.
+
+
+google returns with:
+{
+access_token: "ya29.kwB2cRBsODhkjJI7wnfO2NI9xS3x3kRrzdbgOnItvnCBxjBsPkkdDZ6w"
+token_type: "Bearer"
+expires_in: 3533
+id_token: "eyJhbGciOiJSUzI1NiIsImtpZCI6IjlmOWJmYjBmZjlmNjU1MTEzYWRlNGNhMTM0Y2M0MjZhODI0ZmMyNWIifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwic3ViIjoiMTE0MTU0OTc1MTk0NDEzNDc1MTQzIiwiYXpwIjoiOTY1NTUwMDk1MjEwLTVsNjhlNzY0NTF1ajNjamF1OW9haGttb3YzbDlsazJsLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiZW1haWwiOiJyYXVsLnRlaXhlaXJhQGdtYWlsLmNvbSIsImF0X2hhc2giOiJzZ1g0VW14UkZxRGhUcERJSVZfRTdnIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF1ZCI6Ijk2NTU1MDA5NTIxMC01bDY4ZTc2NDUxdWozY2phdTlvYWhrbW92M2w5bGsybC5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImlhdCI6MTQxMjM2NTE3NSwiZXhwIjoxNDEyMzY5MDc1fQ.sGx5FYA9w4pgEWL_3SQnY61XH-XtTlYcyKeqEuRxifqXgUmJBzDtsEVCfy6MOwxoFXi_NjY0sG9PKJWEx6A4zkfH5nIAF8xmeGVm1uNY80Xw7Szpeq0UwU5Y9bpLOVKICsBlmEeGYjgr9wSm59X6BwBVYLBMfSHHKLaHyZWK1jg"
+}
+
+https://www.googleapis.com/oauth2/v1/tokeninfo?id_token=eyJhbGciOiJSUzI1NiIsImtpZCI6IjlmOWJmYjBmZjlmNjU1MTEzYWRlNGNhMTM0Y2M0MjZhODI0ZmMyNWIifQ.eyJpc3MiOiJhY2NvdW50cy5nb29nbGUuY29tIiwic3ViIjoiMTE0MTU0OTc1MTk0NDEzNDc1MTQzIiwiYXpwIjoiOTY1NTUwMDk1MjEwLTVsNjhlNzY0NTF1ajNjamF1OW9haGttb3YzbDlsazJsLmFwcHMuZ29vZ2xldXNlcmNvbnRlbnQuY29tIiwiZW1haWwiOiJyYXVsLnRlaXhlaXJhQGdtYWlsLmNvbSIsImF0X2hhc2giOiJzZ1g0VW14UkZxRGhUcERJSVZfRTdnIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImF1ZCI6Ijk2NTU1MDA5NTIxMC01bDY4ZTc2NDUxdWozY2phdTlvYWhrbW92M2w5bGsybC5hcHBzLmdvb2dsZXVzZXJjb250ZW50LmNvbSIsImlhdCI6MTQxMjM2NTE3NSwiZXhwIjoxNDEyMzY5MDc1fQ.sGx5FYA9w4pgEWL_3SQnY61XH-XtTlYcyKeqEuRxifqXgUmJBzDtsEVCfy6MOwxoFXi_NjY0sG9PKJWEx6A4zkfH5nIAF8xmeGVm1uNY80Xw7Szpeq0UwU5Y9bpLOVKICsBlmEeGYjgr9wSm59X6BwBVYLBMfSHHKLaHyZWK1jg
+
