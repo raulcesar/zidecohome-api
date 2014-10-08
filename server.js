@@ -55,14 +55,40 @@ middleware.setup(app, conf, passport);
 router.run(app, conf, passport);
 
 
+//TODO: Changed the listen from directly on app to http...
+//app.listen(conf.server.port);
 
 //Inicia servidor.
-app.listen(conf.server.port);
+var http = require('http').Server(app);
 
-if (app.settings.env == conf.validEnvs.dev) {
-  console.log('app.env: ' + app.settings.env)
-  console.log('process.env.NODE_ENV: ' + process.env.NODE_ENV);
+//TODO: Just playing for now. Later we will see if this is really the best place
+var io = require('socket.io').listen(http);
+function tick () {
+  var now = new Date().toUTCString();
+  console.log('tick...');
+  io.sockets.emit('news', now);
 }
+setInterval(tick, 1000);
 
-console.log('I stand ready for subjugation (on port ' + conf.server.port + '), my master.');
+io.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});
+
+
+http.listen(conf.server.port, function(){
+  if (app.settings.env == conf.validEnvs.dev) {
+    console.log('app.env: ' + app.settings.env);
+    console.log('process.env.NODE_ENV: ' + process.env.NODE_ENV);
+  }
+
+  console.log('I stand ready for subjugation (on port ' + conf.server.port + '), my master.');
+});
+
+
+
+
+
 
