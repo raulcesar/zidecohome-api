@@ -54,10 +54,6 @@ conf.development = {
 
 conf.defaults = {
   application: {
-
-
-
-
     salt: '29654284BUGALA2323SHARE',
     username: 'clangton',
     password: 'GR+adJAdWOxFQMLFHAWPig==',
@@ -74,17 +70,14 @@ conf.defaults = {
 
       ],
       public: [
-        'simpleroute'
-//          ,
-//          {
-//          resourceName: 'foo',
-//          validOperations : [
-//              {verb: 'get', func: 'find', idInRoute:true},
-//              {verb: 'post', func: 'ins', idInRoute:false},
-//              {verb: 'put', func: 'upd', idInRoute:true},
-//              {verb: 'delete', func: 'del', idInRoute:true}
-//          ]
-//          }
+        'simpleroute',
+        {
+          resourceName: 'message',
+          iosocket: true,
+          validOperations: [
+            {verb: 'get', func: 'get', idInRoute: false}
+          ]
+        }
       ]
     }
 
@@ -100,10 +93,10 @@ conf.defaults = {
     prod: 'production'
   },
   google: {
-      authenticationendpoint: 'https://accounts.google.com/o/oauth2/auth',
-      applicationid: '965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com',
-      authenticationscope:'openid%20email&',
-      callbackroute: '/auth/google/return/'
+    authenticationendpoint: 'https://accounts.google.com/o/oauth2/auth',
+    applicationid: '965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com',
+    authenticationscope: 'openid%20email&',
+    callbackroute: '/auth/google/return/'
   }
 
 
@@ -124,8 +117,8 @@ exports.get = function get(env, obj) {
   var settings = tool.cloneextend(conf.defaults, conf[env]);
 
   //Here we can create new configs, based on sessings object.
-    //TODO: Change protocolprefix and exposedportprefix to server section.
-    settings.google.callbackurl =
+  //TODO: Change protocolprefix and exposedportprefix to server section.
+  settings.google.callbackurl =
     settings.application.protocolprefix +
     settings.server.fqhost +
     settings.application.exposedportprefix +
