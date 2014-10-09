@@ -1,4 +1,4 @@
-exports.run = function route(app, conf, passport) {
+exports.run = function route(app, conf, passport, io) {
     var _ = require('lodash');
     var crypto = require('crypto');
 
@@ -54,7 +54,11 @@ exports.run = function route(app, conf, passport) {
             handlers[resourceName] =
                 require('../routes/tabelasAuxiliares')(resource.tabauxName, resource.tabauxIdColName, resource.tabauxDescColName);
         } else {
+          if (resource.iosocket) {
+            handlers[resourceName] = require('../routes/' + resourceName)(io);
+          } else {
             handlers[resourceName] = require('../routes/' + resourceName);
+          }
         }
 
         //Logica para incluir callback de autenticação (quando rotas protegidas)

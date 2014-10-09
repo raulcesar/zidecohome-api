@@ -11,14 +11,14 @@ var logAndRespond = function (err, res, status) {
     });
 };
 
-var resolveConection = function (callback, req, res) {
+var resolveConection = function (callback, req, res, opts) {
     req.mysql.getConnection(function (err, connection) {
         if (err) {
             logAndRespond(err, res);
             return;
         }
         console.log('connected as id ' + connection.threadId);
-        callback(connection, req, res);
+        callback(connection, req, res, opts);
     });
 };
 
