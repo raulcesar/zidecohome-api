@@ -1,26 +1,28 @@
 //TODO: o codigo relativo a sessao tera que ser refatorado de forma a ser diferenciado para ambiente de desenvolvimento e producao.
 
 
-exports.setup = function setup(app, conf, passport){
-  var mysql   = require('mysql')
+exports.setup = function setup(app, conf, passport) {
+  var mysql = require('mysql')
     , express = require('express')
 //    , log = require('npmlog')
     , session = require('express-session')
     , path = require('path')
+
 //    , RedisStore = require('connect-redis')(session)
 //    , redisClient = require('redis').createClient()
     , cookieParser = require('cookie-parser')
-    //, GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 //    , CAS = require('cas')
 
 
-    , pool    = mysql.createPool({
-      host     : conf.db.mysql.host,
-      user     : conf.db.mysql.user,
-      password : conf.db.mysql.password,
-      database : conf.db.mysql.database,
-      port     : conf.db.mysql.port
-    });
+    , pool = mysql.createPool({
+      host: conf.db.mysql.host,
+      user: conf.db.mysql.user,
+      password: conf.db.mysql.password,
+      database: conf.db.mysql.database,
+      port: conf.db.mysql.port
+    })
+    ,sessionStore = new session.MemoryStore();
+
 
 //  Loga REDIS startup.
 //  redisClient
@@ -36,10 +38,14 @@ exports.setup = function setup(app, conf, passport){
   app.use(require('errorhandler')(conf.application.errorHandler));
   app.use(cookieParser());
   app.use(session({
-      secret: 'bla1@fds#hjohnny%1!@',
-      resave: true,
-      saveUninitialized: true
+    store: sessionStore,
+    secret: conf.application.sessionsecret,
+    resave: true,
+    saveUninitialized: true
   }));
+
+
+
   //TODO: inclui redis.
 //  app.use(session({
 //    secret: 'bla1@fds#hjohnny%1!@'
@@ -51,25 +57,17 @@ exports.setup = function setup(app, conf, passport){
   app.use(passport.session());
 
 
-  //Lista cookies
-//  app.use(function(req, res, next) {
-//    console.log(req.cookies);
-//    var test = JSON.stringify(req.cookies);
-////      console.log('Just to check cookies....');
-//    next();
-//  });
-
 
 
   //Permite CORS (development only)
 //  app.configure('development')
 //  if (app.settings.env == conf.validEnvs.dev) {
-    app.use(require('./corsmiddleware')()); //log
+  app.use(require('./corsmiddleware')()); //log
 //  }
 
   //Inclui um middleware para tratar para... eu acho que mysql e cache... por hora não vamos usar cache, entao comentei o cache e store...
-  app.use(function(req, res, next) {
-    req.mysql   = pool;
+  app.use(function (req, res, next) {
+    req.mysql = pool;
 //    req.cache   = require('memoizee');
 //    req.store   = app.locals;
     next();
@@ -87,6 +85,12 @@ exports.setup = function setup(app, conf, passport){
   var directory = path.join(__dirname, '../staticfiles');
   console.log('Serving static files from: ' + directory);
   app.use('/file', express.static(directory));
+
+
+  //Put sessionStore on app object.
+  app.sessionStore = sessionStore;
+
+
 
 };
 

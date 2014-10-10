@@ -14,7 +14,8 @@
 var express = require('express'), //Express framework
   middleware = require('./infra/middleware'),
   router = require('./infra/router'),
-  passport = require('passport')
+  passport = require('passport'),
+  cookieParser = require('cookie-parser');
   ;
 
 
@@ -59,6 +60,7 @@ var io = require('socket.io').listen(server);
 
 
 //Configur  a "middleware"
+
 middleware.setup(app, conf, passport);
 router.run(app, conf, passport, io);
 
@@ -81,13 +83,46 @@ router.run(app, conf, passport, io);
 //}
 //setInterval(tick, 10000);
 
+
+//Configure global authorization function.
+
+io.use(function(socket, next) {
+  var parseCookie = cookieParser(conf.application.sessionsecret);
+  var reqWithHandshake = socket.request;
+  var sessionid = reqWithHandshake.signedCookies[conf.application.sessionCookieKey]
+
+  parseCookie(reqWithHandshake, null, function(err, data) {
+    app.sessionStore.get(sessionid, function(err, session) {
+      if (session) {
+        consoel.log('session: ' + session);
+      }
+    });
+
+  });
+
+//  handshakeData.headers.cookie;
+  console.log('handshakeData: ' + handshakeData);
+  // make sure the handshake data looks good as before
+  // if error do this:
+  // next(new Error('not authorized');
+  // else just call next
+  next();
+});
+
 //Just a check for connection. Will probably do something here, like store user.
 io.on('connection', function (socket) {
   console.log('There was a connection...');
-  socket.emit('news', { hello: 'world' });
+  socket.emit('news', {texto: 'world' });
   socket.on('my other event', function (data) {
     console.log(data);
   });
+
+  socket.on('chat', function (data, cb) {
+    console.log('chat recieved: ' + data);
+    cb({message: 'ack', texto: 'Ackknoleged: ' + data});
+  });
+
+
 });
 
 
