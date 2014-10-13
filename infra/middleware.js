@@ -5,12 +5,12 @@ exports.setup = function setup(app, conf, passport) {
   var mysql = require('mysql')
     , express = require('express')
 //    , log = require('npmlog')
-    , session = require('express-session')
+//    , session = require('express-session')
+//    , cookieParser = require('cookie-parser')
     , path = require('path')
 
 //    , RedisStore = require('connect-redis')(session)
 //    , redisClient = require('redis').createClient()
-    , cookieParser = require('cookie-parser')
 //    , CAS = require('cas')
 
 
@@ -21,7 +21,8 @@ exports.setup = function setup(app, conf, passport) {
       database: conf.db.mysql.database,
       port: conf.db.mysql.port
     })
-    ,sessionStore = new session.MemoryStore();
+//    ,sessionStore = new session.MemoryStore()
+    ;
 
 
 //  Loga REDIS startup.
@@ -34,15 +35,18 @@ exports.setup = function setup(app, conf, passport) {
   //inclui middlewares da aplicacao express...
   app.use(require('morgan')('dev')); //log
   app.use(require('compression')());
-  app.use(require('body-parser')());
-  app.use(require('errorhandler')(conf.application.errorHandler));
-  app.use(cookieParser());
-  app.use(session({
-    store: sessionStore,
-    secret: conf.application.sessionsecret,
-    resave: true,
-    saveUninitialized: true
+  app.use(require('body-parser').urlencoded({
+    extended: true
   }));
+  app.use(require('errorhandler')(conf.application.errorHandler));
+  //todo: put in server.js to test with io.sockets.
+//  app.use(cookieParser());
+//  app.use(session({
+//    store: sessionStore,
+//    secret: conf.application.sessionsecret,
+//    resave: true,
+//    saveUninitialized: true
+//  }));
 
 
 
@@ -88,7 +92,8 @@ exports.setup = function setup(app, conf, passport) {
 
 
   //Put sessionStore on app object.
-  app.sessionStore = sessionStore;
+//  app.sessionStore = sessionStore;
+
 
 
 

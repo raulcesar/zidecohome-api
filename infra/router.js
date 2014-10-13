@@ -142,7 +142,9 @@ exports.run = function route(app, conf, passport, io) {
         if (stateFromRequest !== stateFromSession) {
             console.log('stateFromRequest: ' + stateFromRequest);
             console.log('stateFromSession: ' + stateFromSession);
-            return next(new Error('Error validating authentication.'));
+          console.log('testcondition: ' + stateFromRequest !== stateFromSession);
+
+            return next(new Error('Error validating authentication.\n' + stateFromRequest + '\n' + stateFromSession));
         }
 
         //Remove CSRF token from session:

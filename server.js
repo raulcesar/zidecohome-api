@@ -56,7 +56,24 @@ var server = http.createServer(app);
 
 //TODO: Later we will see if this is really the best place
 var io = require('socket.io').listen(server);
+//var cookieParser = require('cookie-parser')();
 
+//var session = require('./session')({ secret: 'secret' });
+var session = require('express-session')
+  , sessionStore = new session.MemoryStore();
+
+session = session({
+  store: sessionStore,
+  secret: conf.application.sessionsecret,
+  resave: true,
+  saveUninitialized: true
+});
+var cookieParser = require('cookie-parser')();
+
+var passportSocketIo = require("passport.socketio");
+
+app.use(cookieParser);
+app.use(session);
 
 
 //Configur  a "middleware"
@@ -84,29 +101,25 @@ router.run(app, conf, passport, io);
 //setInterval(tick, 10000);
 
 
-//Configure global authorization function.
-
-io.use(function(socket, next) {
-  var parseCookie = cookieParser(conf.application.sessionsecret);
-  var reqWithHandshake = socket.request;
-  var sessionid = reqWithHandshake.signedCookies[conf.application.sessionCookieKey]
-
-  parseCookie(reqWithHandshake, null, function(err, data) {
-    app.sessionStore.get(sessionid, function(err, session) {
-      if (session) {
-        consoel.log('session: ' + session);
+//Process session in middleware to give socket.io access to session.
+io.use(function(socket, ioNext) {
+  //socket.handshake = request.
+  var req = socket.handshake;
+  var res = {};
+  cookieParser(req, res, function(err) {
+    //if error, call ios next.
+    if (err) return ioNext(err);
+    session(req, res, function(err) {
+      //If no user, then throw error
+      var err = err;
+      if (!req.session || !req.session.passport || !req.session.passport.user) {
+        err = new Error('No user session!');
       }
+
+      //If all is well, just call next.
+      ioNext(err);
     });
-
   });
-
-//  handshakeData.headers.cookie;
-  console.log('handshakeData: ' + handshakeData);
-  // make sure the handshake data looks good as before
-  // if error do this:
-  // next(new Error('not authorized');
-  // else just call next
-  next();
 });
 
 //Just a check for connection. Will probably do something here, like store user.
@@ -117,12 +130,15 @@ io.on('connection', function (socket) {
     console.log(data);
   });
 
+  var session = socket.handshake.session;
+  var user = session.passport.user;
+
+  console.log('user: ' + JSON.stringify(user));
+
   socket.on('chat', function (data, cb) {
     console.log('chat recieved: ' + data);
     cb({message: 'ack', texto: 'Ackknoleged: ' + data});
   });
-
-
 });
 
 
