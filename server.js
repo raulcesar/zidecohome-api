@@ -13,9 +13,10 @@
 
 var express = require('express'), //Express framework
   middleware = require('./infra/middleware'),
+  iosocketserver = require('./infra/socketserver'),
+
   router = require('./infra/router'),
-  passport = require('passport'),
-  cookieParser = require('cookie-parser');
+  passport = require('passport')
   ;
 
 
@@ -54,94 +55,17 @@ process.on('uncaughtException', function (err) {
 var http = require('http');
 var server = http.createServer(app);
 
-//TODO: Later we will see if this is really the best place
-var io = require('socket.io').listen(server);
-//var cookieParser = require('cookie-parser')();
-
-//var session = require('./session')({ secret: 'secret' });
-var session = require('express-session')
-  , sessionStore = new session.MemoryStore();
-
-session = session({
-  store: sessionStore,
-  secret: conf.application.sessionsecret,
-  resave: true,
-  saveUninitialized: true
-});
-var cookieParser = require('cookie-parser')();
-
-var passportSocketIo = require("passport.socketio");
-
-app.use(cookieParser);
-app.use(session);
-
-
-//Configur  a "middleware"
-
+//Configure connect "middleware" (session, etc.)
 middleware.setup(app, conf, passport);
-router.run(app, conf, passport, io);
+
+//configure and run socket.io server
+iosocketserver.setup(conf, server);
+
+//Configure routes
+router.run(app, conf, passport);
 
 
-//TODO: Changed the listen from directly on app to http...
-//var io = require('socket.io')(app);
-//app.listen(conf.server.port);
-
-
-
-//var http = require('http').Server(app);
-
-//
-////TODO: Just playing for now. Later we will see if this is really the best place
-
-//function tick () {
-//  var now = new Date().toUTCString();
-//  console.log('tick...');
-//  io.sockets.emit('news', now);
-//}
-//setInterval(tick, 10000);
-
-
-//Process session in middleware to give socket.io access to session.
-io.use(function(socket, ioNext) {
-  //socket.handshake = request.
-  var req = socket.handshake;
-  var res = {};
-  cookieParser(req, res, function(err) {
-    //if error, call ios next.
-    if (err) return ioNext(err);
-    session(req, res, function(err) {
-      //If no user, then throw error
-      var err = err;
-      if (!req.session || !req.session.passport || !req.session.passport.user) {
-        err = new Error('No user session!');
-      }
-
-      //If all is well, just call next.
-      ioNext(err);
-    });
-  });
-});
-
-//Just a check for connection. Will probably do something here, like store user.
-io.on('connection', function (socket) {
-  console.log('There was a connection...');
-  socket.emit('news', {texto: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
-
-  var session = socket.handshake.session;
-  var user = session.passport.user;
-
-  console.log('user: ' + JSON.stringify(user));
-
-  socket.on('chat', function (data, cb) {
-    console.log('chat recieved: ' + data);
-    cb({message: 'ack', texto: 'Ackknoleged: ' + data});
-  });
-});
-
-
+//Come
 server.listen(conf.server.port, function(){
   if (app.settings.env == conf.validEnvs.dev) {
     console.log('app.env: ' + app.settings.env);
