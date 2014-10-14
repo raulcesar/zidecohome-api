@@ -54,6 +54,8 @@ conf.development = {
 
 conf.defaults = {
   application: {
+    sessionsecret: 'izabouandjohnyy234$23',
+    sessionCookieKey: "connect.sid",
     salt: '29654284BUGALA2323SHARE',
     username: 'clangton',
     password: 'GR+adJAdWOxFQMLFHAWPig==',

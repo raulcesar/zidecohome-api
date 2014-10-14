@@ -13,6 +13,8 @@
 
 var express = require('express'), //Express framework
   middleware = require('./infra/middleware'),
+  iosocketserver = require('./infra/socketserver'),
+
   router = require('./infra/router'),
   passport = require('passport')
   ;
@@ -53,44 +55,17 @@ process.on('uncaughtException', function (err) {
 var http = require('http');
 var server = http.createServer(app);
 
-//TODO: Later we will see if this is really the best place
-var io = require('socket.io').listen(server);
-
-
-
-//Configur  a "middleware"
+//Configure connect "middleware" (session, etc.)
 middleware.setup(app, conf, passport);
-router.run(app, conf, passport, io);
+
+//configure and run socket.io server
+iosocketserver.setup(conf, server);
+
+//Configure routes
+router.run(app, conf, passport);
 
 
-//TODO: Changed the listen from directly on app to http...
-//var io = require('socket.io')(app);
-//app.listen(conf.server.port);
-
-
-
-//var http = require('http').Server(app);
-
-//
-////TODO: Just playing for now. Later we will see if this is really the best place
-
-//function tick () {
-//  var now = new Date().toUTCString();
-//  console.log('tick...');
-//  io.sockets.emit('news', now);
-//}
-//setInterval(tick, 10000);
-
-//Just a check for connection. Will probably do something here, like store user.
-io.on('connection', function (socket) {
-  console.log('There was a connection...');
-  socket.emit('news', { hello: 'world' });
-  socket.on('my other event', function (data) {
-    console.log(data);
-  });
-});
-
-
+//Come
 server.listen(conf.server.port, function(){
   if (app.settings.env == conf.validEnvs.dev) {
     console.log('app.env: ' + app.settings.env);
