@@ -1,6 +1,7 @@
 exports.run = function route(app, conf, passport) {
   var _ = require('lodash');
   var crypto = require('crypto');
+  var validator = require('validator');
 
   var io = conf.io;
 
@@ -117,7 +118,12 @@ exports.run = function route(app, conf, passport) {
     var md5 = crypto.createHash('md5');
 
     md5.update(buf);
-    var statetoken = md5.digest('base64') + 'referer=' + referer;
+    var statetoken = md5.digest('base64');
+    statetoken = validator.blacklist(statetoken, ':/\\?#\\[\\]@!\\$&\'\\(\\)\\*\\+,;=')
+      + 'referer=' + referer;
+
+
+
 
     //put into session for later use.
     sess.statetoken = statetoken;
@@ -141,12 +147,7 @@ exports.run = function route(app, conf, passport) {
     var stateFromSession = sess.statetoken;
     var stateFromRequest = req.param('state');
 
-    var strictTest = (stateFromRequest !== stateFromSession);
-    var lenientTest = (stateFromRequest != stateFromSession);
-    console.log('strictTest: ' + strictTest);
-    console.log('lenientTest: ' + lenientTest);
-
-    if (stateFromRequest != stateFromSession) {
+    if (stateFromRequest !== stateFromSession) {
       console.log('stateFromRequest: ' + stateFromRequest);
       console.log('stateFromSession: ' + stateFromSession);
       console.log('testcondition: ' + stateFromRequest !== stateFromSession);
