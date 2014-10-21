@@ -21,8 +21,9 @@ exports.setup = function setup(app, conf, passport) {
       database: conf.db.mysql.database,
       port: conf.db.mysql.port
     })
-    ,sessionStore = new session.MemoryStore()
-    ;
+    ,sessionStore = new session.MemoryStore();
+
+  var orm = require('orm');
 
 
 //  Loga REDIS startup.
@@ -74,18 +75,21 @@ exports.setup = function setup(app, conf, passport) {
 //  }
 
   //Inclui um middleware para tratar para... eu acho que mysql e cache... por hora não vamos usar cache, entao comentei o cache e store...
+//  app.use(function (req, res, next) {
+//    req.mysql = pool;
+////    req.cache   = require('memoizee');
+////    req.store   = app.locals;
+//    next();
+//  });
+
+
+  //Setup sequelize middleware
+  var models = require("..//models")(conf);
   app.use(function (req, res, next) {
-    req.mysql = pool;
-//    req.cache   = require('memoizee');
-//    req.store   = app.locals;
+    req.ormmodels = models;
     next();
   });
 
-//  app.use(function(req, res, next) {
-//    console.log('req.user' + req.user);
-//    res.header('kd-usuario' , {user: req.user} );
-//    next();
-//  });
 
 
   //Middleware para servir arquivos estaticos... Podemos deixar aqui ou podemos possivelmente

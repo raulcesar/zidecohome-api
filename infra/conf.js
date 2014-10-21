@@ -73,6 +73,7 @@ conf.defaults = {
       ],
       public: [
         'simpleroute',
+        'currency',
         {
           resourceName: 'message',
           iosocket: true,

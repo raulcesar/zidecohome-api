@@ -1,4 +1,4 @@
-exports.run = function route(app, conf, passport) {
+exports.run = function route(app, conf, passport, models) {
   var _ = require('lodash');
   var crypto = require('crypto');
   var validator = require('validator');

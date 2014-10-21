@@ -1,0 +1,61 @@
+"use strict";
+
+module.exports = function (conf) {
+
+
+  var fs = require("fs");
+  var path = require("path");
+  var Sequelize = require("sequelize");
+  var env = process.env.NODE_ENV || "development";
+//  var config = require(__dirname + '/../config/config.json')[env];
+
+  var options = {
+    "host": conf.db.mysql.host,
+    "port": conf.db.mysql.port,
+    "dialect": "mysql"
+  }
+  var sequelize = new Sequelize(
+    conf.db.mysql.database,
+    conf.db.mysql.user,
+    conf.db.mysql.password,
+    options);
+//  var sequelize = new Sequelize(config.database, config.username, config.password, config);
+  var db = {};
+
+
+//  var dbOpts = {
+//    database : conf.db.mysql.database,
+//    protocol : "mysql",
+//    host     : conf.db.mysql.host,
+//    port     : conf.db.mysql.port,         // optional, defaults to database default
+//    user     : conf.db.mysql.user,
+//    password : conf.db.mysql.password,
+//    query    : {
+//      pool     : true,   // optional, false by default
+//      debug    : false,   // optional, false by default
+//      strdates : false    // optional, false by default
+//    }
+//  };
+
+
+  fs
+    .readdirSync(__dirname)
+    .filter(function (file) {
+      return (file.indexOf(".") !== 0) && (file !== "index.js");
+    })
+    .forEach(function (file) {
+      var model = sequelize["import"](path.join(__dirname, file));
+      db[model.name] = model;
+    });
+
+  Object.keys(db).forEach(function (modelName) {
+    if ("associate" in db[modelName]) {
+      db[modelName].associate(db);
+    }
+  });
+
+  db.sequelize = sequelize;
+  db.Sequelize = Sequelize;
+
+  return db;
+}

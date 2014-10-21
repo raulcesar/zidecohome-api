@@ -65,15 +65,28 @@ iosocketserver.setup(conf, server);
 router.run(app, conf, passport);
 
 
-//Come
-server.listen(conf.server.port, function(){
-  if (app.settings.env == conf.validEnvs.dev) {
-    console.log('app.env: ' + app.settings.env);
-    console.log('process.env.NODE_ENV: ' + process.env.NODE_ENV);
-  }
 
-  console.log('I stand ready for subjugation (on port ' + conf.server.port + '), my master.');
-});
+//models.sequelize.sync().success(function () {
+
+
+//});
+
+
+
+//models.sequelize.sync().success(function () {
+//Comeca a escutar
+  server.listen(conf.server.port, function(){
+    if (app.settings.env == conf.validEnvs.dev) {
+      console.log('app.env: ' + app.settings.env);
+      console.log('process.env.NODE_ENV: ' + process.env.NODE_ENV);
+    }
+
+    console.log('I stand ready for subjugation (on port ' + conf.server.port + '), my master.');
+  });
+//});
+
+
+
 
 
 
