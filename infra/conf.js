@@ -2,34 +2,34 @@
  * Este modulo representa o objeto de configuracao da aplicacao backend.
  *
  */
+"use strict";
 
-
-var tool = require('cloneextend'),
+var tool = require("cloneextend"),
   conf = {};
 
 conf.production = {
   db: {
     mysql: {
-      host: 'srv-cedi-pro',
-      user: 'usrkd',
-      password: 'senha',
-      database: 'dbkd',
+      host: "srv-cedi-pro",
+      user: "usrkd",
+      password: "senha",
+      database: "dbkd",
       port: 3306
     }
   },
   application: {
-    apiroute: '/kdapi',
-    protocolprefix: 'http://',
-    exposedportprefix: '',
+    apiroute: "/kdapi",
+    protocolprefix: "http://",
+    exposedportprefix: "",
     errorHandler: { dumpExceptions: true, showStack: true }
   },
   server: {
-    fqhost: 'srv-cedi-pro',
-    host: 'srv-cedi-pro',
-    port: '3030'
+    fqhost: "srv-cedi-pro",
+    host: "srv-cedi-pro",
+    port: "3030"
   },
   cas: {
-    urlbase: 'https://cas.camara.gov.br/cas'
+    urlbase: "https://cas.camara.gov.br/cas"
   }
 };
 
@@ -37,48 +37,47 @@ conf.production = {
 conf.development = {
   db: {
     mysql: {
-      host: 'localhost',
-      user: 'dbzideco',
-      password: 'senha',
-      database: 'zidecohome',
+      host: "localhost",
+      user: "dbzideco",
+      password: "senha",
+      database: "zidecohome",
       port: 3306
     }
   },
   application: {
-    apiroute: '',
-    protocolprefix: 'http://',
-    exposedportprefix: ':3030',
+    apiroute: "",
+    protocolprefix: "http://",
+    exposedportprefix: ":3030",
     errorHandler: { dumpExceptions: true, showStack: true }
   }
 };
 
 conf.defaults = {
   application: {
-    sessionsecret: 'izabouandjohnyy234$23',
+    sessionsecret: "izabouandjohnyy234$23",
     sessionCookieKey: "connect.sid",
-    salt: '29654284BUGALA2323SHARE',
-    username: 'clangton',
-    password: 'GR+adJAdWOxFQMLFHAWPig==',
-    realm: 'Authenticated',
+    salt: "29654284BUGALA2323SHARE",
+    username: "clangton",
+    password: "GR+adJAdWOxFQMLFHAWPig==",
+    realm: "Authenticated",
     resources: {
       protegido: [
 //        {
-//          resourceName: 'resumopessoas',
+//          resourceName: "resumopessoas",
 //          validOperations : [
-//            {verb: 'get', func: 'get', idInRoute:false},
-//            {verb: 'get', func: 'find', idInRoute:true}
+//            {verb: "get", func: "get", idInRoute:false},
+//            {verb: "get", func: "find", idInRoute:true}
 //          ]
 //        }
 
       ],
       public: [
-        'simpleroute',
-        'currency',
+        "simpleroute",
         {
-          resourceName: 'message',
+          resourceName: "message",
           iosocket: true,
           validOperations: [
-            {verb: 'get', func: 'get', idInRoute: false}
+            {verb: "get", func: "get", idInRoute: false}
           ]
         }
       ]
@@ -87,19 +86,19 @@ conf.defaults = {
 
   },
   server: {
-    fqhost: 'localhost',
-    host: 'localhost',
+    fqhost: "localhost",
+    host: "localhost",
     port: 3030
   },
   validEnvs: {
-    dev: 'development',
-    prod: 'production'
+    dev: "development",
+    prod: "production"
   },
   google: {
-    authenticationendpoint: 'https://accounts.google.com/o/oauth2/auth',
-    applicationid: '965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com',
-    authenticationscope: 'openid%20email&',
-    callbackroute: '/auth/google/return/'
+    authenticationendpoint: "https://accounts.google.com/o/oauth2/auth",
+    applicationid: "965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com",
+    authenticationscope: "openid%20email&",
+    callbackroute: "/auth/google/return/"
   }
 
 
@@ -115,7 +114,7 @@ conf.defaults = {
  */
 exports.get = function get(env, obj) {
   if (env === undefined) {
-    env = 'development';
+    env = "development";
   }
   var settings = tool.cloneextend(conf.defaults, conf[env]);
 
@@ -127,7 +126,7 @@ exports.get = function get(env, obj) {
     settings.application.exposedportprefix +
     settings.application.apiroute + settings.google.callbackroute;
 
-  return ('object' === typeof obj) ? tool.cloneextend(settings, obj) : settings;
+  return ("object" === typeof obj) ? tool.cloneextend(settings, obj) : settings;
 };
 
 
