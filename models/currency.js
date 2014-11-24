@@ -2,7 +2,9 @@
 
 module.exports = function(sequelize, DataTypes) {
   var Currency = sequelize.define("Currency", {
-    name: DataTypes.STRING
+    code: DataTypes.STRING,
+    description: DataTypes.STRING,
+    valueZidecos: DataTypes.BIGINT
   }, {
     classMethods: {
       associate: function(models) {

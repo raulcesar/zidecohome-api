@@ -12,14 +12,33 @@ module.exports = function (conf) {
   var options = {
     "host": conf.db.mysql.host,
     "port": conf.db.mysql.port,
-    "dialect": "mysql"
-  }
+    "dialect": "mariadb",
+    // logging: false,
+    define: {
+      attributes: {
+        username: {type: Sequelize.STRING}
+      },
+      
+      freezeTableName: true,
+      
+      // underscored: false,
+      // freezeTableName: false,
+      // syncOnAssociation: true,
+      // charset: 'utf8',
+      // collate: 'utf8_general_ci',
+      // classMethods: {method1: function() {}},
+      // instanceMethods: {method2: function() {}},
+      timestamps: true
+    },
+    pool: {maxConnections: 10, maxIdleTime: 30}
+  };
+
   var sequelize = new Sequelize(
     conf.db.mysql.database,
     conf.db.mysql.user,
     conf.db.mysql.password,
     options);
-//  var sequelize = new Sequelize(config.database, config.username, config.password, config);
+
   var db = {};
 
 
