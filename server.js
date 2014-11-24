@@ -2,15 +2,7 @@
  * Created by raul on 02/10/2014.
  */
 
-
-//Elenca dependencias
-//var path = require('path');
-//var favicon = require('static-favicon');
-//var logger = require('morgan');
-//var cookieParser = require('cookie-parser');
-//var bodyParser = require('body-parser');
-
-
+'use strict';
 var express = require('express'), //Express framework
   middleware = require('./infra/middleware'),
   iosocketserver = require('./infra/socketserver'),
