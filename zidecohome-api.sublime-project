@@ -1,0 +1,29 @@
+{
+	"folders":
+	[
+		{
+			"folder_exclude_patterns":
+			[
+				// "node_modules"
+			],
+			"follow_symlinks": true,
+			"path": "."
+		}
+	],
+	"settings":
+	{
+		"todoreview":
+		{
+			"exclude_folders":
+			[
+				"*.git",
+				"*node_modules*",
+				"*bower_components*",
+				"*coverage*",
+				"*karma-tests*",
+				"*lint-reports*",
+				"*literrorlog*"
+			]
+		}
+	}
+}

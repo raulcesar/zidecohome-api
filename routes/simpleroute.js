@@ -8,23 +8,23 @@
  * Contudo, este recurso NÃO suporta todos os métodos. Apenas o GET e FIND.
  *
  */
-'use strict';
+"use strict";
 
-var conexaoMysql = require('../infra/mysqlConectionHelper');
+var conexaoMysql = require("../infra/mysqlConectionHelper");
 
 var rows = [
     {
         ID: 1,
-        description: 'Bla Bla Bla'
+        description: "Bla Bla Bla"
     },
     {
         ID: 2,
-        description: 'Bla Bla foo'
+        description: "Bla Bla foo"
     }
 ];
 
 function handleGet(connection, req, res) {
-    var sql = 'select col1, col2 from table1';
+    var sql = "select col1, col2 from table1";
     var pars = undefined;
     connection.query(sql, pars, function (err, rows) {
         if (err) {
@@ -50,25 +50,25 @@ function handleFind(connection, req, res) {
 }
 
 function handleIns(connection, req, res) {
-//  connection.query('INSERT INTO ' + tabName + ' SET ?', req.body, function (err, result) {
+//  connection.query("INSERT INTO " + tabName + " SET ?", req.body, function (err, result) {
 //    if (err){ conexaoMysql.logaEResponde(err,res); return; }
 //    res.statusCode = 201;
 //    res.send({
-//      result: 'success',
-//      err:    '',
+//      result: "success",
+//      err:    "",
 //      id:     result.insertId
 //    });
 //    connection.release();
 //  });
     res.statusCode = 201;
-    res.send({id: 1, nome: 'teste'});
+    res.send({id: 1, nome: "teste"});
 
 }
 function handleUpd(connection, req, res) {
 //    //Aqui, temos que
 //    var pessoa = pessoaModel.pessoaTabelize(req.body);
 //
-//    connection.query('UPDATE ' + tabName + ' SET ? WHERE id=' + req.params.id, pessoa, function (err) {
+//    connection.query("UPDATE " + tabName + " SET ? WHERE id=" + req.params.id, pessoa, function (err) {
 //        if (err) {
 //            conexaoMysql.logaEResponde(err, res);
 //            return;
@@ -79,12 +79,12 @@ function handleUpd(connection, req, res) {
 //    });
 //    connection.release();
     res.statusCode = 200;
-    res.send({id: 1, nome: 'teste'});
+    res.send({id: 1, nome: "teste"});
 
 }
 
 function handleDel(connection, req, res) {
-//    connection.query('DELETE FROM ' + tabName + ' WHERE idCadastro = ?', req.params.id,
+//    connection.query("DELETE FROM " + tabName + " WHERE idCadastro = ?", req.params.id,
 //        function (err) {
 //            if (err) {
 //                connection.release();
@@ -92,15 +92,15 @@ function handleDel(connection, req, res) {
 //                return;
 //            }
 //            res.send({
-//                result: 'success',
-//                err: '',
+//                result: "success",
+//                err: "",
 //                id: req.params.id
 //            });
 //            connection.release();
 //        });
     res.send({
-        result: 'success',
-        err: '',
+        result: "success",
+        err: "",
         id: req.params.id
     });
 
@@ -108,7 +108,7 @@ function handleDel(connection, req, res) {
 
 
 function buscaDependentes(req, res) {
-    res.send({autenticacao: 'ok'});
+    res.send({autenticacao: "ok"});
 }
 
 
@@ -119,15 +119,15 @@ function criaCallbacksCustomizados(app, validaAutenticacao) {
     }
     callbacks.push(buscaDependentes);
 
-//    app.get('/auth/google', passport.authenticate('google'));
+//    app.get("/auth/google", passport.authenticate("google"));
     //Exemplo de um callback customizado. No caso um "subrecurso"
 
-    app.get('/auth/:provider/:status', callbacks);
+    app.get("/auth/:provider/:status", callbacks);
 }
 
 //Return API
 module.exports = {
-    version: '1.0',
+    version: "1.0",
     get: function (req, res) {
         conexaoMysql.resolveConection(handleGet, req, res);
     },

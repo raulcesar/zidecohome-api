@@ -1,13 +1,14 @@
+"use strict";
 // load all the things we need
-//var LocalStrategy   = require('passport-local').Strategy;
-//var CasStrategy = require('../passport-kd-cas/lib').Strategy;
-//var GoogleStrategy = require('passport-google').Strategy;
-//var GooglePlusStrategy = require('passport-google-plus');
+//var LocalStrategy   = require("passport-local").Strategy;
+//var CasStrategy = require("../passport-kd-cas/lib").Strategy;
+//var GoogleStrategy = require("passport-google").Strategy;
+//var GooglePlusStrategy = require("passport-google-plus");
 
-var GoogleStrategy = require('../passport-oauth2-clientside/lib').Strategy;
+var GoogleStrategy = require("../passport-oauth2-clientside/lib").Strategy;
 
 
-//var User = require('../model/user');
+//var User = require("../model/user");
 
 //Expoe funcao de configuração:
 // expose this function to our app using module.exports
@@ -33,9 +34,9 @@ module.exports = function(passport) {
 //    // =========================================================================
 //    //            GoogleStrategy
 //    // =========================================================================
-//  passport.use('google', new GoogleStrategy({
-//              returnURL: 'http://www.rault.org:3030/auth/google/return',
-//              realm: 'http://www.rault.org:3030/'
+//  passport.use("google", new GoogleStrategy({
+//              returnURL: "http://www.rault.org:3030/auth/google/return",
+//              realm: "http://www.rault.org:3030/"
 //          },
 //          function(identifier, profile, done) {
 //              User.findOrCreate({ openId: identifier }, function(err, user) {
@@ -50,15 +51,15 @@ module.exports = function(passport) {
     // =========================================================================
     //                      estrategia google (criada por nos)
     // =========================================================================
-    passport.use('googleoauth2clientside', new GoogleStrategy());
+    passport.use("googleoauth2clientside", new GoogleStrategy());
 
 
 //    // =========================================================================
 //    //            GooglePlusStrategy
 //    // =========================================================================
-//    passport.use('googleplus', new GooglePlusStrategy({
-//            clientId: '965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com',
-//            clientSecret: '_rqDu5zzkKvmqja_la8UPhBd'
+//    passport.use("googleplus", new GooglePlusStrategy({
+//            clientId: "965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com",
+//            clientSecret: "_rqDu5zzkKvmqja_la8UPhBd"
 //        },
 //        function(tokens, profile, done) {
 //            // Create or update user, call done() when complete...
@@ -70,27 +71,27 @@ module.exports = function(passport) {
   // =========================================================================
   //                      estrategia CAS (criada por nos)
   // =========================================================================
-//  passport.use('kdcas-validate', new CasStrategy());
+//  passport.use("kdcas-validate", new CasStrategy());
 
 
   // =========================================================================
   //                      estrategia local... so para testar.
   // =========================================================================
   // we are using named strategies since we have one for login and one for signup
-  // by default, if there was no name, it would just be called 'local'
+  // by default, if there was no name, it would just be called "local"
 
-//  passport.use('local-login', new LocalStrategy({
+//  passport.use("local-login", new LocalStrategy({
 //      // by default, local strategy uses username and password, we will override with email
-//      usernameField : 'email',
-//      passwordField : 'password',
+//      usernameField : "email",
+//      passwordField : "password",
 //      passReqToCallback : true // allows us to pass back the entire request to the callback
 //    },
 //    function(req, email, password, done) {
 //      //Esta é a funcao de "verificacao" usado pela LocalStrategy
 //      //finge que esta validando o password
 //      var user;
-//      if (password === 'senha') {
-//        user = new User(email, '999', '');
+//      if (password === "senha") {
+//        user = new User(email, "999", "");
 //        return done(null, user);
 //      }
 //
