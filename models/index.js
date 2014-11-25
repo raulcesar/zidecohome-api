@@ -15,10 +15,6 @@ module.exports = function (conf) {
     "dialect": "mariadb",
     // logging: false,
     define: {
-      attributes: {
-        username: {type: Sequelize.STRING}
-      },
-      
       freezeTableName: true,
       
       // underscored: false,
@@ -42,6 +38,8 @@ module.exports = function (conf) {
   var db = {};
 
 
+
+
 //  var dbOpts = {
 //    database : conf.db.mysql.database,
 //    protocol : "mysql",
@@ -55,6 +53,13 @@ module.exports = function (conf) {
 //      strdates : false    // optional, false by default
 //    }
 //  };
+
+  // var mixin = {
+  //   attributes: {
+  //     username: {type: Sequelize.STRING}
+  //   }
+  // };
+  // sequelize.globalmixin = mixin;
 
 
   fs
