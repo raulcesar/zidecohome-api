@@ -3,6 +3,7 @@
  */
 
 //TODO: EXPORTA ESTA FUNCAO COMO UM MIDDLEWARE.
+'use strict';
 module.exports = function corsmiddleware(options) {
   return function (req, res, next) {
     //Get the origin and put that in header, because if we don't, CHROME (maybe others as well) will say that because
@@ -35,5 +36,5 @@ module.exports = function corsmiddleware(options) {
     else {
       next();
     }
-  }
+  };
 };

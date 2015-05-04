@@ -1,21 +1,19 @@
-"use strict";
+'use strict';
 
 module.exports = function (conf) {
 
-
-  var fs = require("fs");
-  var path = require("path");
-  var Sequelize = require("sequelize");
-  var env = process.env.NODE_ENV || "development";
-//  var config = require(__dirname + '/../config/config.json')[env];
+  var fs = require('fs');
+  var path = require('path');
+  var Sequelize = require('sequelize');
 
   var options = {
-    "host": conf.db.mysql.host,
-    "port": conf.db.mysql.port,
-    "dialect": "mariadb",
+    host: conf.db.postgres.host,
+    port: conf.db.postgres.port,
+    dialect: 'postgres',
     // logging: false,
     define: {
       freezeTableName: true,
+
       
       // underscored: false,
       // freezeTableName: false,
@@ -26,13 +24,14 @@ module.exports = function (conf) {
       // instanceMethods: {method2: function() {}},
       timestamps: true
     },
+    quoteIdentifiers: false,
     pool: {maxConnections: 10, maxIdleTime: 30}
   };
 
   var sequelize = new Sequelize(
-    conf.db.mysql.database,
-    conf.db.mysql.user,
-    conf.db.mysql.password,
+    conf.db.postgres.database,
+    conf.db.postgres.user,
+    conf.db.postgres.password,
     options);
 
   var db = {};
@@ -41,12 +40,12 @@ module.exports = function (conf) {
 
 
 //  var dbOpts = {
-//    database : conf.db.mysql.database,
-//    protocol : "mysql",
-//    host     : conf.db.mysql.host,
-//    port     : conf.db.mysql.port,         // optional, defaults to database default
-//    user     : conf.db.mysql.user,
-//    password : conf.db.mysql.password,
+//    database : conf.db.postgres.database,
+//    protocol : 'postgres',
+//    host     : conf.db.postgres.host,
+//    port     : conf.db.postgres.port,         // optional, defaults to database default
+//    user     : conf.db.postgres.user,
+//    password : conf.db.postgres.password,
 //    query    : {
 //      pool     : true,   // optional, false by default
 //      debug    : false,   // optional, false by default
@@ -61,19 +60,19 @@ module.exports = function (conf) {
   // };
   // sequelize.globalmixin = mixin;
 
-
+  //Read all models from current directory, filtering current file (of course)
   fs
     .readdirSync(__dirname)
     .filter(function (file) {
-      return (file.indexOf(".") !== 0) && (file !== "index.js");
+      return (file.indexOf('.') !== 0) && (file !== 'index.js');
     })
     .forEach(function (file) {
-      var model = sequelize["import"](path.join(__dirname, file));
+      var model = sequelize['import'](path.join(__dirname, file));
       db[model.name] = model;
     });
 
   Object.keys(db).forEach(function (modelName) {
-    if ("associate" in db[modelName]) {
+    if ('associate' in db[modelName]) {
       db[modelName].associate(db);
     }
   });
@@ -82,4 +81,4 @@ module.exports = function (conf) {
   db.Sequelize = Sequelize;
 
   return db;
-}
+};

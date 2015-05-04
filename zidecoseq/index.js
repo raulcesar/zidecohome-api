@@ -1,13 +1,9 @@
 /**
- * Module dependencies.
+ * This Module is used to add custom fields to sequelize objects
  */
-var wrappers = require("./wrappers");
+'use strict';
+var wrappers = require('./wrappers');
 
 
-
-
-/**
- * Expose `Strategy` directly from package.
- */
 exports = module.exports = wrappers;
 
