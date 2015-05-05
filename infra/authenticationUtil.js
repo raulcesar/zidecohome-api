@@ -12,8 +12,7 @@ var PhaseController = require('./PhaseController');
 
 var conf;
 
-// Funcao MIDDLEWARE que verifica se usuario esta logado.
-// Caso não esteja, será direcionado para validacao de cas.
+// MIDDLEWARE that checks if user is loged in
 function validateAuthentication(req, res, next) {
     var userIsValid = false;
     //1 check if there is a user in session.

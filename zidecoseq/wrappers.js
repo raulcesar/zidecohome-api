@@ -13,8 +13,8 @@ var globalmixin = {
 var zidecoseq = {
 	define : function(sequelize, modelname, attributes, options) {
 		var extendedAttributes = _.extend(attributes, globalmixin.attributes);
-
-		return sequelize.define(modelname, extendedAttributes, options);
+		var ret = sequelize.define(modelname, extendedAttributes, options);
+		return ret;
 	}
 };
 
