@@ -77,7 +77,8 @@ conf.defaults = {
   public: [
     'simpleroute',
     'currency',
-    'timeentry'
+    'timeentry',
+    'zidecouser'
   ]
 };
 

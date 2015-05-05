@@ -4,7 +4,7 @@ module.exports = function(conf) {
 
    var fs = require('fs');
    var path = require('path');
-   var Sequelize = require('sequelize');
+   var Sequelize = require('../submodules/sequelize');
 
    var options = {
       host: conf.db.postgres.host,
@@ -28,7 +28,7 @@ module.exports = function(conf) {
          // instanceMethods: {method2: function() {}},
          timestamps: true
       },
-      quoteIdentifiers: false,
+      // quoteIdentifiers: false,
       pool: {
          maxConnections: 10,
          maxIdleTime: 30

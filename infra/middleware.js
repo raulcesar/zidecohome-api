@@ -6,9 +6,10 @@ exports.setup = function setup(app, conf, passport) {
     var express = require('express'),
         session = require('express-session'),
         cookieParser = require('cookie-parser')(),
+        bodyParser = require('body-parser'),
         path = require('path'),
         sessionStore = new session.MemoryStore();
-        // log = require('npmlog'),
+    // log = require('npmlog'),
     //mysql = require('mysql'),
     //    , RedisStore = require('connect-redis')(session)
     //    , redisClient = require('redis').createClient()
@@ -34,7 +35,11 @@ exports.setup = function setup(app, conf, passport) {
     // app.use(require('body-parser').urlencoded({
     //     extended: true
     // }));
-    app.use(require('body-parser')());
+    // app.use(require('body-parser')());
+
+
+    app.use(bodyParser.urlencoded({extended: true}));
+    app.use(bodyParser.json());
 
     app.use(require('errorhandler')(conf.application.errorHandler));
     //todo: put in server.js to test with io.sockets.
