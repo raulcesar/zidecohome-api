@@ -17,7 +17,9 @@ module.exports = function(sequelize, DataTypes) {
          },
         dayReference: DataTypes.DATE,
         rawMinutes: DataTypes.INTEGER,
-        validMinutes: DataTypes.INTEGER
+        validMinutes: DataTypes.INTEGER,
+        origin: DataTypes.ENUM('generated', 'manual')
+
     }, {
         classMethods: {
             associate: function(models) {
