@@ -22,6 +22,13 @@ var calculateminutes = function(timePeriod) {
 
 var minHour = 7; //7 horas (minimal)
 var minDeltaEntries = 5; //5 minutes before considering an entry as "diferent"
+var nocturnalSessionInterval = {
+    startHour: 19,
+    startMinute: 0,
+    endHour: 19,
+    endMinute: 30
+};
+
 var generateEntryPeriodsSync = function(models, entries) {
     //Logic to generate time periods.
     var caps = {};
@@ -107,12 +114,21 @@ var generateEntryPeriodsSync = function(models, entries) {
                 dayReference: dayReference,
                 origin: 'generated'
             };
-
-            //TODO: Se for um registro na "zona da noturna", então considere 2 vezes... 
-            //TODO: Talvez o melhor é tratar isso do lado de fora.
             calculateminutes(period);
-
             periods.push(period);
+
+
+            //Lets check if the entry is in the "nocturnal session zone"
+            //If it is, we should duplicate it. This is easily done by setting it (+1 minute) to our next startdate
+            var startNocturnalZone = moment(dayReference).hour(nocturnalSessionInterval.startHour).minute(nocturnalSessionInterval.startMinute);
+            var endNocturnalZone = moment(dayReference).hour(nocturnalSessionInterval.endHour).minute(nocturnalSessionInterval.endMinute);
+            var endMoment = moment(endDate);
+            if ((endMoment.isSame(startNocturnalZone) || endMoment.isAfter(startNocturnalZone)) && 
+                endMoment.isBefore(endNocturnalZone)) {
+                startDate = endMoment.add(1, 'minutes').startOf('minute').toDate();
+            }
+
+
         }
     }
     return periods;
@@ -157,7 +173,7 @@ var deleteCurrentEntries = function(models, startDate, endDate) {
 var persistNewEntries = function(models, periods) {
     console.log('Saving ' + periods.length + ' entries. ');
     return models.TimeEntryPeriod.bulkCreate(periods).then(function(createdPeriods) {
-        console.log('created periods');
+        console.log('created ' + createdPeriods.length + ' periods');
     });
 };
 
@@ -224,21 +240,9 @@ var processTimeEntriesClean = function(models, serviceRequestObject, parameters)
     //Run stuff. When finished, save new satus for serviceRequestObject
     console.log('Will run processTimeEntriesClean for period: ' + parameters.startDate + ' to ' + parameters.endDate);
     return processTimeEntries(models, parameters.startDate, parameters.endDate).then(function() {
-        console.log('serviceRequestObject.status: ' + serviceRequestObject.status);
-        console.log('serviceRequestObject.id: ' + serviceRequestObject.id);
-
-        // models.ServiceRequest.find(req.params.id).then(function(object) {
-        //     if (_.isEmpty(object)) {
-        //         res.sendStatus(204);
-        //         return;
-        //     }
-        //     res.send(object);
-        // }, zidecoUtils.satandardErrorTreater(req, res));
-
-
         serviceRequestObject.status = 'finished';
         serviceRequestObject.save().then(function(o) {
-            console.log('saved object: ' + JSON.stringify(o));
+            console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
         });
 
     });
@@ -249,5 +253,4 @@ var processTimeEntriesClean = function(models, serviceRequestObject, parameters)
 module.exports = {
     processTimeEntries: processTimeEntries,
     processTimeEntriesClean: processTimeEntriesClean
-
 };

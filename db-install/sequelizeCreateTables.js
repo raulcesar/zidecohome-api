@@ -42,7 +42,7 @@ models.sequelize.sync({
         moment('05-05-2015 08:38', 'DD-MM-YYYY HH:mm'),
         moment('05-05-2015 14:28', 'DD-MM-YYYY HH:mm'),
         moment('05-05-2015 15:21', 'DD-MM-YYYY HH:mm'),
-        moment('05-05-2015 19:08', 'DD-MM-YYYY HH:mm'), //Entrada da noturna. Deve ser duplicado.
+        moment('05-05-2015 19:08:32', 'DD-MM-YYYY HH:mm:ss'), //Entrada da noturna. Deve ser duplicado.
         moment('05-05-2015 21:01', 'DD-MM-YYYY HH:mm'), //Saida da noturna
         moment('06-05-2015 00:02', 'DD-MM-YYYY HH:mm'),//POSSIBLE CAP... INVALID 
 

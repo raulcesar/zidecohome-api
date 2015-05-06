@@ -41,6 +41,9 @@ var moment = require('moment');
 // console.log(moment('2015-12-20 15:48:32').date());
 // console.log(moment('2015-12-21 08:48:32').date());
 
-console.log(moment('2015-12-21 08:48:32').startOf('day').format('DD/MM/YYYY hh:mm:ss'));
-console.log(moment('2015-12-21 08:48:32').hour(0).startOf('hour').format('DD/MM/YYYY hh:mm:ss'));
+// console.log(moment('2015-12-21 08:48:32').startOf('day').format('DD/MM/YYYY hh:mm:ss'));
+// console.log(moment('2015-12-21 08:48:32').hour(0).startOf('hour').format('DD/MM/YYYY hh:mm:ss'));
 
+var dayReference = moment('2015-12-21 08:48:32').startOf('day');
+console.log(moment(dayReference).hour(7).minute(0).format('DD/MM/YYYY hh:mm:ss'));
+console.log(moment(dayReference).hour(7).minute(30).format('DD/MM/YYYY hh:mm:ss'));
