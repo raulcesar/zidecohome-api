@@ -33,53 +33,71 @@
 var conf = {};
 
 conf.defaults = {
-  // resources: {
+    // resources: {
 
-  protegido: [
-    // 'pocpool',
-    // 'pochello',
+    protegido: [
+        // 'pocpool',
+        // 'pochello',
 
-    // {
-    //     resourceName: 'usuariocorrente',
-    //     validOperations: [{
-    //         verb: 'get',
-    //         func: 'get',
-    //         idInRoute: false
-    //     }, {
-    //         verb: 'get',
-    //         func: 'find',
-    //         idInRoute: true
-    //     }],
-    //     subresources: [{
-    //         resourceName: 'foto',
-    //         validOperations: [{
-    //             verb: 'get',
-    //             func: 'find',
-    //             idInRoute: true
-    //         }, {
-    //             verb: 'post',
-    //             func: 'ins',
-    //             idInRoute: true
-    //         }, {
-    //             verb: 'delete',
-    //             func: 'del',
-    //             idInRoute: true
-    //         }]
-    //     }]
-    // },
-
-
+        // {
+        //     resourceName: 'usuariocorrente',
+        //     validOperations: [{
+        //         verb: 'get',
+        //         func: 'get',
+        //         idInRoute: false
+        //     }, {
+        //         verb: 'get',
+        //         func: 'find',
+        //         idInRoute: true
+        //     }],
+        //     subresources: [{
+        //         resourceName: 'foto',
+        //         validOperations: [{
+        //             verb: 'get',
+        //             func: 'find',
+        //             idInRoute: true
+        //         }, {
+        //             verb: 'post',
+        //             func: 'ins',
+        //             idInRoute: true
+        //         }, {
+        //             verb: 'delete',
+        //             func: 'del',
+        //             idInRoute: true
+        //         }]
+        //     }]
+        // },
 
 
-  ],
 
 
-  public: [
-    'simpleroute',
-    'currency',
-    'timeentry',
-    'zidecouser'
-  ]
+    ],
+
+
+    public: [
+        'simpleroute',
+        'currency',
+        'timeentry',
+        'zidecouser', {
+            resourceName: 'servicerequest',
+            validOperations: [{
+                    verb: 'get',
+                    func: 'find',
+                    idInRoute: true
+                }, {
+                    verb: 'get',
+                    func: 'get',
+                    idInRoute: false
+                }, {
+                    verb: 'post',
+                    func: 'ins',
+                    idInRoute: false
+                }
+            ]
+
+        }
+
+    ]
 };
 
 module.exports = conf;

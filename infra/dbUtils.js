@@ -11,16 +11,6 @@ var standardGetHandler = function(resourceNameOrOptions, req, res) {
         resourceName = resourceNameOrOptions.resourceName;
         queryOptions = resourceNameOrOptions.queryOptions;
     }
-    //Check for query.
-    // var findPromise;
-    // if (req.query) {
-    //     if (!includes) {
-    //         includes = {};
-    //     }
-    //     includes.where = req.query;
-    // }
-
-    // findPromise = req.ormmodels[resourceName].findAll(includes);
     req.ormmodels[resourceName].findAll(queryOptions)
 
     .then(function(objects) {
