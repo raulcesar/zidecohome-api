@@ -5,9 +5,8 @@ module.exports = function(sequelize, DataTypes) {
    var UserXRole = zidecoseq.define(sequelize, 'UserXRole', 
       {
          startDate: {
-            type: DataTypes.DATE
-            // ,
-            // allowNull: false
+            type: DataTypes.DATE,
+            allowNull: false
          },
          endDate: DataTypes.DATE
       });

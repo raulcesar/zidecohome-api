@@ -31,6 +31,11 @@ models.sequelize.sync({
         moment('05-05-2015 08:38', 'DD-MM-YYYY HH:mm'),
         moment('05-05-2015 14:28', 'DD-MM-YYYY HH:mm'),
         moment('05-05-2015 15:21', 'DD-MM-YYYY HH:mm'),
+        moment('05-05-2015 19:08', 'DD-MM-YYYY HH:mm'),
+
+        moment('05-05-2015 21:01', 'DD-MM-YYYY HH:mm'), //Saida da noturna
+
+        moment('06-05-2015 07:56', 'DD-MM-YYYY HH:mm'),
     ];
     //Create time entries
     for (var i = 0; i < entries.length; i++) {
