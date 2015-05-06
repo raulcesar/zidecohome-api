@@ -1,6 +1,6 @@
 'use strict';
 // var Sequelize = require('sequelize');
-var Sequelize = require('../submodules/sequelize');
+var Sequelize = require('sequelize');
 var _ = require('lodash');
 
 var globalmixin = {

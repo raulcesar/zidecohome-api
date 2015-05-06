@@ -4,7 +4,7 @@ module.exports = function(conf) {
 
    var fs = require('fs');
    var path = require('path');
-   var Sequelize = require('../submodules/sequelize');
+   var Sequelize = require('sequelize');
 
    var options = {
       host: conf.db.postgres.host,
