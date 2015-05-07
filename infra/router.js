@@ -17,17 +17,18 @@ exports.run = function route(app, conf, passport) {
   var qtdRotas = 0;
   // Funcao MIDDLEWARE que verifica se usuario esta logado.
   // Caso não esteja, será direcionado para validacao de cas.
-  function validateAuthentication(req, res, next) {
-    // if user is authenticated in the session, carry on
-    if (req.isAuthenticated()) {
-      return next();
-    }
+  // function validateAuthentication(req, res, next) {
+  //   // if user is authenticated in the session, carry on
+  //   if (req.isAuthenticated()) {
+  //     return next();
+  //   }
 
-    // Se não estiver logado, joga para a pagina de login do GOOGLE... POSSIVELMENTE vou jogar para uma pagina de login do aplicativo.
-    var referer = req.originalUrl;
+  //   // Se não estiver logado, joga para a pagina de login do GOOGLE... POSSIVELMENTE vou jogar para uma pagina de login do aplicativo.
+  //   // var referer = req.originalUrl;
+  //   var referer = getReferer(req);
 
-    res.redirect(conf.application.apiroute + '/logingoogle' + '?referer=' + referer);
-  }
+  //   res.redirect(conf.application.apiroute + '/logingoogle' + '?referer=' + referer);
+  // }
 
 
   function includeStandardRoute(resource, isProtected, parentResourceName, parentRoute) {
@@ -166,7 +167,7 @@ exports.run = function route(app, conf, passport) {
 
 
 
-  app.get('/protegida', validateAuthentication, function(req, res) {
+  app.get('/protegida', authenticationUtil.validateAuthentication, function(req, res) {
     res.json(200, {
       'RecursoProtegitdo: ': 'blablabla...'
     });
@@ -178,12 +179,9 @@ exports.run = function route(app, conf, passport) {
     });
   });
 
-  function getReferer(req) {
-    return req.param('referer') || req.header('referer') || 'http://srv-cedi-bdi/wiki';
-  }
 
   app.get('/logingoogle', function(req, res) {
-    var referer = getReferer(req);
+    var referer = authenticationUtil.getReferer(req);
 
     //create cross-site request forgery (CSRF) token
     var sess = req.session;
@@ -271,7 +269,7 @@ exports.run = function route(app, conf, passport) {
   });
 
 
-  app.get('/currentuser', validateAuthentication, function(req, res) {
+  app.get('/currentuser', authenticationUtil.validateAuthentication, function(req, res) {
     var usu = req.user;
     res.json(200, usu);
   });

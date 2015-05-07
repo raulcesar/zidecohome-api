@@ -26,6 +26,9 @@ var conf;
 
   //   res.redirect(conf.application.apiroute + '/logingoogle' + '?referer=' + referer);
   // }
+  function getReferer(req) {
+    return req.param('referer') || req.header('referer') || 'http://localhost:9000';
+  }
 
 
 function validateAuthentication(req, res, next) {
@@ -68,7 +71,10 @@ function validateAuthentication(req, res, next) {
 
 
     // If not loged on, go to login page.
-    var referer = req.originalUrl;
+    // var referer = req.originalUrl;
+    var antigo = req.originalUrl;
+    console.log('antigamente, mandava o /logingoogle o referer: ' + antigo);
+    var referer = getReferer(req);
     res.redirect(conf.application.apiroute + '/logingoogle' + '?referer=' + referer);
 
     // res.redirect(conf.application.apiroute + '/validacas');
@@ -251,7 +257,8 @@ module.exports = function(parconf) {
         validateAuthentication: validateAuthentication,
         hidrateZidecoUser: hidrateZidecoUser,
         invalidateUser: invalidateUser,
-        createAuthenticationMiddleware: createAuthenticationMiddleware
+        createAuthenticationMiddleware: createAuthenticationMiddleware,
+        getReferer:getReferer
             // ,
             // Usuario:Usuario
     };
