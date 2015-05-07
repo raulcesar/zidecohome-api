@@ -18,11 +18,16 @@ var express = require('express'), //Express framework
 var app = express();
 var conf = require('./config/conf').get(app.settings.env); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
 var authenticationUtil = require('./infra/authenticationUtil')(conf);
+var models = require('./models')(conf); //ORM will be needed for passport 
+var zidecoUtils = require('./infra/zidecoUtils');
+
 app.set('authenticationUtil', authenticationUtil);
 app.set('conf', conf);
+app.set('ormmodels', models);
+app.set('zUtils', zidecoUtils);
 
+require('./infra/passportconf')(passport, models); // pass passport for configuration
 
-require('./infra/passportconf')(passport); // pass passport for configuration
 
 ///// catch 404 and forward to error handler
 //app.use(function(req, res, next) {
@@ -52,6 +57,8 @@ var server = http.createServer(app);
 
 //Configure connect 'middleware' (session, etc.)
 middleware.setup(app, conf, passport);
+
+
 
 //configure and run socket.io server
 // iosocketserver.setup(conf, server);

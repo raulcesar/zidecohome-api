@@ -29,6 +29,10 @@ var nocturnalSessionInterval = {
     endMinute: 30
 };
 
+/**
+This function generates the timePeriods based on a list of timeEntry items.
+It assumes all entries are from the same user.
+*/
 var generateEntryPeriodsSync = function(models, entries) {
     //Logic to generate time periods.
     var caps = {};
@@ -51,7 +55,7 @@ var generateEntryPeriodsSync = function(models, entries) {
             if (_.isUndefined(caps[dayRef])) {
                 caps[dayRef] = [];
             }
-            caps[dayRef].push(entry.entryTime);
+            caps[dayRef].push(entry);
             return false;
         }
 
@@ -67,17 +71,19 @@ var generateEntryPeriodsSync = function(models, entries) {
     //Determine periods.
     //When we get here, the list should be good to go!
     var periods = [];
-    var period, startDate;
+    var period, startDate, startEntryId, endEntryId;
     for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
         if (!startDate) {
             startDate = entry.entryTime;
+            startEntryId = entry.id;
         } else {
             //Already have a startDate, but if this date is from after the "minhour" of the following day (or after 2 days), then 
             //We need to disregard the last startDate and choose this one as a new one. 
             //Since we are removing from the last entries BEFORE the minhour, we just have to check if it is another day.
             var dayReference = moment(startDate).startOf('day');
             var endDate = entry.entryTime;
+            endEntryId = entry.id;
             var startDateForPeriod = startDate;
             startDate = undefined;
 
@@ -96,10 +102,8 @@ var generateEntryPeriodsSync = function(models, entries) {
                 if (!_.isEmpty(caps[key])) {
                     var capEntries = caps[key];
                     //Here we have all the possible caps for this day... but for now, I will use only the first.
-                    endDate = capEntries[0];
-                    // for (var iCaps = 0; iCaps < capEntries.length; iCaps++) {
-                    //     endDate = capEntries[iCaps];
-                    // }
+                    endDate = capEntries[0].entryTime;
+                    endEntryId = capEntries[0].id;
                 } else {
                     //Couldn't find a cap... oh well!
                     continue;
@@ -112,7 +116,11 @@ var generateEntryPeriodsSync = function(models, entries) {
                 startTime: startDateForPeriod,
                 endTime: endDate,
                 dayReference: dayReference,
-                origin: 'generated'
+                origin: 'generated',
+                userId: entry.user.id,
+                startEntryId: startEntryId,
+                endEntryId: endEntryId
+
             };
             calculateminutes(period);
             periods.push(period);
@@ -123,7 +131,7 @@ var generateEntryPeriodsSync = function(models, entries) {
             var startNocturnalZone = moment(dayReference).hour(nocturnalSessionInterval.startHour).minute(nocturnalSessionInterval.startMinute);
             var endNocturnalZone = moment(dayReference).hour(nocturnalSessionInterval.endHour).minute(nocturnalSessionInterval.endMinute);
             var endMoment = moment(endDate);
-            if ((endMoment.isSame(startNocturnalZone) || endMoment.isAfter(startNocturnalZone)) && 
+            if ((endMoment.isSame(startNocturnalZone) || endMoment.isAfter(startNocturnalZone)) &&
                 endMoment.isBefore(endNocturnalZone)) {
                 startDate = endMoment.add(1, 'minutes').startOf('minute').toDate();
             }
@@ -142,11 +150,13 @@ var generateEntryPeriods = function(models, entries) {
     });
 };
 
-var deleteCurrentEntries = function(models, startDate, endDate) {
+var deleteCurrentEntries = function(models, userId, startDate, endDate) {
     console.log('Deleting entries from: ' + startDate + ' to ' + endDate);
     var filter = {
         where: {
             origin: 'generated',
+            userId: userId,
+
             $or: [{
                     startTime: {
                         gte: startDate,
@@ -177,7 +187,7 @@ var persistNewEntries = function(models, periods) {
     });
 };
 
-var processTimeEntries = function(models, argStartDate, argEndDate, options) {
+var processTimeEntries = function(models, userId, argStartDate, argEndDate, options) {
     options = options || {
         saveGeneratedEntries: true,
         deleteEntriesForPeriod: true
@@ -191,8 +201,14 @@ var processTimeEntries = function(models, argStartDate, argEndDate, options) {
             entryTime: {
                 gte: startDate,
                 lt: endDate
-            }
-        }
+            },
+            userId: userId
+        },
+        include: [{
+            model: models.ZidecoUser,
+            as: 'user'
+        }]
+
     };
 
     //Return the promise.
@@ -210,7 +226,7 @@ var processTimeEntries = function(models, argStartDate, argEndDate, options) {
                 var dbDefered = Q.defer();
 
                 if (options.deleteEntriesForPeriod) {
-                    deleteCurrentEntries(models, startDate, endDate).then(function() {
+                    deleteCurrentEntries(models, userId, startDate, endDate).then(function() {
                         dbDefered.resolve(periods);
                     });
                 } else {
@@ -239,7 +255,17 @@ var processTimeEntries = function(models, argStartDate, argEndDate, options) {
 var processTimeEntriesClean = function(models, serviceRequestObject, parameters) {
     //Run stuff. When finished, save new satus for serviceRequestObject
     console.log('Will run processTimeEntriesClean for period: ' + parameters.startDate + ' to ' + parameters.endDate);
-    return processTimeEntries(models, parameters.startDate, parameters.endDate).then(function() {
+    //The service for timeentry processing should, at the least, have the userId parameter
+    if (!parameters || !parameters.userId) {
+        console.log('processTimeEntriesClean failed due to lack of userId param');
+        serviceRequestObject.status = 'failed';
+        return serviceRequestObject.save().then(function(o) {
+            console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
+        });
+    }
+
+
+    return processTimeEntries(models, parameters.userId, parameters.startDate, parameters.endDate).then(function() {
         serviceRequestObject.status = 'finished';
         serviceRequestObject.save().then(function(o) {
             console.log('persisted serviceRequestObject: ' + JSON.stringify(o));

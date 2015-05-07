@@ -3,11 +3,22 @@
 var zidecoseq = require('../zidecoseq');
 
 module.exports = function(sequelize, DataTypes) {
-   // var globalmixin = sequelize.globalmixin;
-   var TimeEntry = zidecoseq.define(sequelize, 'TimeEntry', {
-      entryTime: DataTypes.DATE,
-      origin: DataTypes.STRING
-   });
+    // var globalmixin = sequelize.globalmixin;
+    var TimeEntry = zidecoseq.define(sequelize, 'TimeEntry', {
+        entryTime: DataTypes.DATE,
+        origin: DataTypes.STRING
+    }, {
+        classMethods: {
+            associate: function(models) {
+                TimeEntry.belongsTo(models.ZidecoUser, {
+                    as: 'user',
+                    foreignKey: {
+                        allowNull: false
+                    }
+                });
+            }
+        }
+    });
 
-   return TimeEntry;
+    return TimeEntry;
 };

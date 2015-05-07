@@ -17,6 +17,8 @@ var ServicesByCategories = {
 };
 
 function handleGet(req, res) {
+    // var whereClause = {userId: usu.id};
+
     dbUtils.standardGetHandler(resourceName, req, res);
 
     // var queryOptions;
@@ -74,6 +76,7 @@ function handleIns(req, res) {
         res.status(500).send('Service ' + recievedObject.serviceCategory + '.' + recievedObject.serviceName + ' not available');
         return;
     }
+
     // res.send('test');
     recievedObject.status = 'pending';
     req.ormmodels.ServiceRequest.create(recievedObject).then(function(savedObject) {

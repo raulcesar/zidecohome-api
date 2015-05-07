@@ -8,7 +8,9 @@ exports.setup = function setup(app, conf, passport) {
         cookieParser = require('cookie-parser')(),
         bodyParser = require('body-parser'),
         path = require('path'),
-        sessionStore = new session.MemoryStore();
+        sessionStore = new session.MemoryStore()
+        ;
+
     // log = require('npmlog'),
     //mysql = require('mysql'),
     //    , RedisStore = require('connect-redis')(session)
@@ -85,11 +87,12 @@ exports.setup = function setup(app, conf, passport) {
 
 
     //Setup sequelize middleware
-    var models = require('../models')(conf);
+    // var models = require('../models')(conf);
     app.use(function(req, res, next) {
-        req.ormmodels = models;
+        req.ormmodels = app.get('ormmodels');
         next();
     });
+
 
 
 

@@ -21,49 +21,53 @@ module.exports = function(sequelize, DataTypes) {
                   // through: 'UserXRole'
                   through: models.UserXRole
                });
+               ZidecoUser.hasMany(models.ZidecoUserAlias, {
+                  as: { singular: 'alias', plural: 'aliases' }
+               });
+
             }
          },
 
          instanceMethods: {
             isValid: function(argDateToCheck) {
-               if (this.hidratedUser.disabled === true) {
+               if (this.disabled === true) {
                   return false;
                }
                
                var dateToCheck = argDateToCheck || moment();
-               if (moment(this.hidratedUser.dataValidade).isBefore(dateToCheck)) {
+               if (moment(this.experationDate).isBefore(dateToCheck)) {
                   return false;
                }
                return true;
             },
 
             hasValidRole: function(code, argDateToCheck) {
-               if (!this.roles || this.roles.length <= 0) {
-                  return false;
-               }
-               var dateToCheck = argDateToCheck || moment();
-               var index = this.perfilIndex[code];
-               if (!_.isUndefined(index)) {
-                  var historicoPerfil = this.roles[index];
-                  //Check that the role is not disabled.
-                  if (historicoPerfil.perfil.disabled === true) {
-                     return false;
-                  }
+               // if (!this.roles || this.roles.length <= 0) {
+               //    return false;
+               // }
+               // var dateToCheck = argDateToCheck || moment();
+               // var index = this.perfilIndex[code];
+               // if (!_.isUndefined(index)) {
+               //    var historicoPerfil = this.roles[index];
+               //    //Check that the role is not disabled.
+               //    if (historicoPerfil.perfil.disabled === true) {
+               //       return false;
+               //    }
 
-                  //Check that the role is valid on the DATE being specified.
-                  if (!_.isNull(historicoPerfil.dataFim) &&
-                     !_.isUndefined(historicoPerfil.dataFim) &&
-                     moment(historicoPerfil.dataFim).isBefore(dateToCheck)) {
-                     return false;
-                  }
+               //    //Check that the role is valid on the DATE being specified.
+               //    if (!_.isNull(historicoPerfil.dataFim) &&
+               //       !_.isUndefined(historicoPerfil.dataFim) &&
+               //       moment(historicoPerfil.dataFim).isBefore(dateToCheck)) {
+               //       return false;
+               //    }
 
-                  //Has the role and it is valid!
-                  return true;
+               //    //Has the role and it is valid!
+               //    return true;
 
-               }
+               // }
 
-               return false;
-
+               // return false;
+               return true;
             }
          }
       }

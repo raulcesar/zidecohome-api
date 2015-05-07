@@ -1,7 +1,8 @@
 select * from "ServiceRequest";
 delete from "ServiceRequest";
 select * from "TimeEntryPeriod";
-
+select * from "TimeEntry";
+select * from "ZidecoUserAlias"
 
 
 select * from currency;
@@ -59,3 +60,6 @@ drop table zidecouser;
 
 select * from UserXRole
 
+
+
+ SELECT "id", "entryTime", "origin", "createdBy", "createdAt", "updatedAt", "userId" FROM "TimeEntry" AS "TimeEntry" WHERE "TimeEntry"."userID" = 2;

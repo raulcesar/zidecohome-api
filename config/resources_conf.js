@@ -36,6 +36,9 @@ conf.defaults = {
     // resources: {
 
     protegido: [
+    'timeentry',
+    'timeperiod'
+
         // 'pocpool',
         // 'pochello',
 
@@ -77,7 +80,7 @@ conf.defaults = {
     public: [
         'simpleroute',
         'currency',
-        'timeentry',
+        
         'zidecouser', {
             resourceName: 'servicerequest',
             validOperations: [{

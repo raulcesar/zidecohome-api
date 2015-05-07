@@ -1,11 +1,14 @@
+'use strict';
+
 /**
  * Module dependencies.
  */
-var passport = require('passport-strategy')
-    , util = require('util')
-    , lookup = require('./utils').lookup
-    , request = require('request')
-    , url = require('url');
+var passport = require('passport-strategy'),
+    util = require('util'),
+    // lookup = require('./utils').lookup,
+    request = require('request'),
+    _ = require('lodash'),
+    url = require('url');
 
 //var ldapQuerier = require('../../model/ldapQuerier');
 
@@ -47,9 +50,9 @@ function Strategy(options) {
         options = {
             googleTokenEndpoint: 'https://accounts.google.com/o/oauth2/token',
             googleTokenInfoEndpoint: 'https://www.googleapis.com/oauth2/v1/tokeninfo',
-            appClientID:'965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com',
+            appClientID: '965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com',
             appClientSecret: '_rqDu5zzkKvmqja_la8UPhBd',
-            appRedirectURI:'http://localhost:3030/auth/google/return/'
+            appRedirectURI: 'http://localhost:3030/auth/google/return/'
         };
     }
 
@@ -71,7 +74,7 @@ util.inherits(Strategy, passport.Strategy);
  * @param {Object} options
  * @api protected
  */
-Strategy.prototype.authenticate = function (req, options) {
+Strategy.prototype.authenticate = function(req, options) {
     options = options || {};
 
     //Get the code for google authentication.
@@ -79,7 +82,9 @@ Strategy.prototype.authenticate = function (req, options) {
 
     //If no code, than fail, and allow the "failure" redirect to send user to GOOGLE login page
     if (!code) {
-        return this.fail({ message: options.badRequestMessage || 'Missing credentials' }, 400);
+        return this.fail({
+            message: options.badRequestMessage || 'Missing credentials'
+        }, 400);
     }
 
     var self = this;
@@ -97,14 +102,15 @@ Strategy.prototype.authenticate = function (req, options) {
     try {
         //Here we will attempt to call the token validation at google
         //Also, send function callback that will "verify" the user.
-        this.codeValidate(code, verified);
+        this.codeValidate(code, options.model, verified);
     } catch (ex) {
         return self.error(ex);
     }
 };
 
 
-Strategy.prototype.codeValidate = function (code, callback) {
+Strategy.prototype.codeValidate = function(code, model, callback) {
+    /*jshint camelcase: false */
     var globalOptions = this.options;
 
     //Create options to post to google token endpoint and retrieve access token.
@@ -123,29 +129,32 @@ Strategy.prototype.codeValidate = function (code, callback) {
     };
 
 
+  
+
 
 
     request(optionsForIDToken,
-        function (error, response, body) {
+        function(error, response, body) {
+            var msg;
             //The body should be a json object representing the returned validated token, or an error.
             //Check for error
             if (error) {
-                console.log('problem with token validation request: ' + e.message);
+                console.log('problem with token validation request: ' + error.message);
                 callback(error);
             }
 
-            if (body.error ) {
-                var msg = 'problem with token validation: ' + body.error_description;
+            if (body.error) {
+                msg = 'problem with token validation: ' + body.error_description;
                 callback(new Error(msg));
             }
 
             if (!body.access_token) {
-                var msg = 'problem with token validation: No access_token';
+                msg = 'problem with token validation: No access_token';
                 callback(new Error(msg));
             }
 
             if (!body.id_token) {
-                var msg = 'problem with token validation: No id_token';
+                msg = 'problem with token validation: No id_token';
                 callback(new Error(msg));
             }
 
@@ -153,55 +162,110 @@ Strategy.prototype.codeValidate = function (code, callback) {
 
             //Now lets validate the token and get an access token!
             var optionsForAcessToken = {
-                url: url.format(
-                    {
-                        pathname: globalOptions.googleTokenInfoEndpoint,
-                        query: {id_token: idToken}
-                    }),
+                url: url.format({
+                    pathname: globalOptions.googleTokenInfoEndpoint,
+                    query: {
+                        id_token: idToken
+                    }
+                }),
                 method: 'GET',
                 json: true
             };
 
             request(optionsForAcessToken,
-                function (error, response, body) {
+                function(error, response, body) {
                     if (error) {
-                        console.log('problem with token validation request: ' + e.message);
+                        console.log('problem with token validation request: ' + error.message);
                         callback(error);
+                        return;
                     }
 
-                    if (body.error ) {
-                        var msg = 'problem with token validation: ' + body.error_description;
+                    if (body.error) {
+                        msg = 'problem with token validation: ' + body.error_description;
                         callback(new Error(msg));
+                        return;
+
                     }
 
                     if (!body.user_id) {
-                        var msg = 'problem with token validation: No USER_ID';
+                        msg = 'problem with token validation: No USER_ID';
                         callback(new Error(msg));
+                        return;
                     }
 
                     if (body.audience !== globalOptions.appClientID) {
-                        var msg = 'problem with token validation: Audience does not match CLIENT_ID';
+                        msg = 'problem with token validation: Audience does not match CLIENT_ID';
                         callback(new Error(msg));
+                        return;
                     }
 
                     if (!body.email_verified) {
-                        var msg = 'Unable to get user email from token validation: ';
+                        msg = 'Unable to get user email from token validation: ';
                         console.log(msg);
                         callback(new Error(msg));
+                        return;
 
                     }
 
                     if (!body.email) {
-                        var msg = 'Unable to get user email from token validation: ';
+                        msg = 'Unable to get user email from token validation: ';
                         console.log(msg);
                         callback(new Error(msg));
+                        return;
                     }
 
-                    var user = {email: body.email};
+                    // var user = {
+                    //     email: body.email
+                    // };
 
 
-                    //TODO:Validate that user is a valid "zideco user" and complement user data from our stores.
-                    callback(null, user, body);
+                    //Validate that user is a valid "zideco user" and complement user data from our stores.
+                    var queryOptions = {
+                        where: {
+                            identifier: body.email
+                        }
+                        // include: [{
+                        //     model: model.UserRole,
+                        //     as: 'roles'
+                        // },
+                        // {
+                        //     model: model.ZidecoUserAlias,
+                        //     as: 'aliases'
+                        // }
+                        // ]
+                    };
+
+                    var treatModelError = function(err) {
+                        msg = 'Error when checking zideco bases for user: ' + err;
+                        console.log(msg);
+                        callback(new Error(msg));
+                        return;
+                    };
+
+                    //We are only going to check in the ALIASES, because even default identifier stays in alias.
+                    model.ZidecoUserAlias.find(queryOptions).then(function(userAlias) {
+                        if (_.isEmpty(userAlias)) {
+                            msg = 'User ' + body.email + 'is not a valid ziedeco user';
+                            console.log(msg);
+                            callback(new Error(msg));
+                            return;
+                        }
+
+                        //TODO: Check other stuff here.
+                        userAlias.getUser().then(function(zidecoUser) {
+                            //Finaly callback with valid user.
+                            zidecoUser.isValid();
+                            callback(null, zidecoUser, body);
+                        }, treatModelError);
+
+                        
+
+                        // res.send(objects);
+                    }, treatModelError);
+
+
+
+                    
                 });
 
 

@@ -17,7 +17,7 @@ exports.run = function route(app, conf, passport) {
   var qtdRotas = 0;
   // Funcao MIDDLEWARE que verifica se usuario esta logado.
   // Caso não esteja, será direcionado para validacao de cas.
-  function validaAutenticacao(req, res, next) {
+  function validateAuthentication(req, res, next) {
     // if user is authenticated in the session, carry on
     if (req.isAuthenticated()) {
       return next();
@@ -29,62 +29,6 @@ exports.run = function route(app, conf, passport) {
     res.redirect(conf.application.apiroute + '/logingoogle' + '?referer=' + referer);
   }
 
-
-  // function incluiRotasPadrao(resource, protegido) {
-  //   var validOperations;
-  //   var resourceName;
-
-  //   //Montamos um vetor de 'operacoes validas' default. Este vetor pode ser sobreescrito pela configuracao.
-  //   validOperations = [
-  //     {verb: 'get', func: 'get', idInRoute: false},
-  //     {verb: 'get', func: 'find', idInRoute: true},
-  //     {verb: 'post', func: 'ins', idInRoute: false},
-  //     {verb: 'put', func: 'upd', idInRoute: true},
-  //     {verb: 'delete', func: 'del', idInRoute: true}
-  //   ];
-
-  //   if (_.isString(resource)) {
-  //     resourceName = resource;
-  //   } else {
-  //     //Sobreescreve operacoes validas, caso existam.
-  //     if (resource.validOperations) {
-  //       validOperations = resource.validOperations;
-  //     }
-
-  //     resourceName = resource.resourceName;
-  //   }
-
-  //   //Se for uma tabela auxiliar, vamos utilizar o 'handler' generico.
-  //   //Se não, usamos o 'handler' com o mesmo nome do resourceName.
-  //   if (resource.tabauxName) {
-  //     handlers[resourceName] =
-  //       require('../routes/tabelasAuxiliares')(resource.tabauxName, resource.tabauxIdColName, resource.tabauxDescColName);
-  //   } else {
-  //     if (resource.iosocket && !_.isUndefined(io)) {
-  //       handlers[resourceName] = require('../routes/' + resourceName)(io);
-  //     } else {
-  //       handlers[resourceName] = require('../routes/' + resourceName);
-  //     }
-  //   }
-
-  //   //Logica para incluir callback de autenticação (quando rotas protegidas)
-  //   var callbacks = [];
-  //   var indexForRouteHandler = 0;
-  //   if (protegido) {
-  //     callbacks[0] = validaAutenticacao;
-  //     indexForRouteHandler = 1;
-  //   }
-
-  //   validOperations.forEach(function (operation) {
-  //     callbacks[indexForRouteHandler] = handlers[resourceName][operation.func];
-  //     app[operation.verb]('/' + resourceName + (operation.idInRoute ? '/:id' : ''), callbacks);
-  //   });
-
-  //   //Se a rota exporta callbacks customizados, chame-os aqui.
-  //   if (_.isFunction(handlers[resourceName].customcallbacks)) {
-  //     handlers[resourceName].customcallbacks(app, (protegido ? validaAutenticacao : null));
-  //   }
-  // }
 
   function includeStandardRoute(resource, isProtected, parentResourceName, parentRoute) {
     var validOperations;
@@ -144,7 +88,10 @@ exports.run = function route(app, conf, passport) {
     var indexForRouteHandler = 0;
     if (isProtected) {
       //Get AUTHENTICATION middleware for the whole resource (all verbs).
+      // callbacks[0] = validateAuthentication;
+      //TODO: REFACTOR INTO AUTHENTICATIONUTIL
       callbacks[0] = authenticationUtil.validateAuthentication;
+      //
       indexForRouteHandler = 1;
     }
 
@@ -219,7 +166,7 @@ exports.run = function route(app, conf, passport) {
 
 
 
-  app.get('/protegida', validaAutenticacao, function(req, res) {
+  app.get('/protegida', validateAuthentication, function(req, res) {
     res.json(200, {
       'RecursoProtegitdo: ': 'blablabla...'
     });
@@ -261,6 +208,7 @@ exports.run = function route(app, conf, passport) {
       'response_type=code&' +
       'scope=' + conf.google.authenticationscope + '&' +
       'redirect_uri=' + conf.google.callbackurl + '&' +
+      'approval_prompt=' + conf.google.approvalPrompt + '&' +
       'state=' + statetoken;
     res.send(401, {
       loginat: loginurl
@@ -294,7 +242,7 @@ exports.run = function route(app, conf, passport) {
     }
 
     //se houver o 'codigo' como parametro, deve funcionar.
-    passport.authenticate('googleoauth2clientside', function(err, user, info) {
+    passport.authenticate('googleoauth2clientside',{model: req.ormmodels}, function(err, user, info) {
       if (err) {
         return next(err);
       }
@@ -323,7 +271,7 @@ exports.run = function route(app, conf, passport) {
   });
 
 
-  app.get('/currentuser', validaAutenticacao, function(req, res) {
+  app.get('/currentuser', validateAuthentication, function(req, res) {
     var usu = req.user;
     res.json(200, usu);
   });

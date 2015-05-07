@@ -23,6 +23,7 @@ module.exports = function(sequelize, DataTypes) {
     }, {
         classMethods: {
             associate: function(models) {
+                TimeEntryPeriod.belongsTo(models.ZidecoUser, {as: 'user', foreignKey: { allowNull: false } });
                 TimeEntryPeriod.belongsTo(models.TimeEntry, {as: 'startEntry'});
                 TimeEntryPeriod.belongsTo(models.TimeEntry, {as: 'endEntry'});
             }

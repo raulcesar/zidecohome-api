@@ -33,6 +33,9 @@ conf.defaults = {
     username: 'clangton',
     password: 'GR+adJAdWOxFQMLFHAWPig==',
     realm: 'Authenticated',
+    apiroute: '',
+    protocolprefix: 'http://',
+    exposedportprefix: ':3030',
   },
   server: {
     fqhost: 'localhost',
@@ -47,7 +50,8 @@ conf.defaults = {
     authenticationendpoint: 'https://accounts.google.com/o/oauth2/auth',
     applicationid: '965550095210-5l68e76451uj3cjau9oahkmov3l9lk2l.apps.googleusercontent.com',
     authenticationscope: 'openid%20email&',
-    callbackroute: '/auth/google/return/'
+    callbackroute: '/auth/google/return/',
+    approvalPrompt: 'auto'
   }
 
 

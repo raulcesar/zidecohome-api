@@ -1,17 +1,17 @@
 /**
- * Created by raul on 04/05/2015.
+ * Created by raul on 07/05/2015.
  */
 'use strict';
 var dbUtils = require('../infra/dbUtils');
 var moment = require('moment');
 var _ = require('lodash');
 
-var resourceName = 'TimeEntry';
+var resourceName = 'TimeEntryPeriod';
 
 function handleGet(req, res) {
     var queryOptions;
     var filtro = req.query;
-    var entryTime = {};
+    var dayReference = {};
 
     //Get the current user and include id in where clause.
     var whereClause = req.app.get('zUtils').getUserIdWhereObject(req);
@@ -23,13 +23,15 @@ function handleGet(req, res) {
     if (filtro.start) {
         //Should we parse KNOWN format???
         // startDate = moment(filtro.start).toDate();
-        entryTime.gte = moment(filtro.start).toDate();
-        whereClause.entryTime = entryTime;
+        dayReference.gte = moment(filtro.start).toDate();
+        whereClause.dayReference = dayReference;
     }
     if (filtro.end) {
-        entryTime.lt = moment(filtro.end).toDate();
-        whereClause.entryTime = entryTime;
+        dayReference.lt = moment(filtro.end).toDate();
+        whereClause.dayReference = dayReference;
     }
+
+
 
     if (!_.isEmpty(whereClause)) {
         queryOptions = {

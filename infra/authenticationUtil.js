@@ -12,7 +12,22 @@ var PhaseController = require('./PhaseController');
 
 var conf;
 
+
+
 // MIDDLEWARE that checks if user is loged in
+  // function validateAuthentication(req, res, next) {
+  //   // if user is authenticated in the session, carry on
+  //   if (req.isAuthenticated()) {
+  //     return next();
+  //   }
+
+  //   // Se não estiver logado, joga para a pagina de login do GOOGLE... POSSIVELMENTE vou jogar para uma pagina de login do aplicativo.
+  //   var referer = req.originalUrl;
+
+  //   res.redirect(conf.application.apiroute + '/logingoogle' + '?referer=' + referer);
+  // }
+
+
 function validateAuthentication(req, res, next) {
     var userIsValid = false;
     //1 check if there is a user in session.
@@ -52,8 +67,11 @@ function validateAuthentication(req, res, next) {
     }
 
 
-    // If not loged on, go to login page.Na verdade, aqui, acho que vou enviar um "UNATHORIZED"
-    res.redirect(conf.application.apiroute + '/validacas');
+    // If not loged on, go to login page.
+    var referer = req.originalUrl;
+    res.redirect(conf.application.apiroute + '/logingoogle' + '?referer=' + referer);
+
+    // res.redirect(conf.application.apiroute + '/validacas');
 }
 
 /**
