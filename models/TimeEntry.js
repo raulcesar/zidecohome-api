@@ -1,12 +1,20 @@
 'use strict';
-// var zidecoseq = require('../zidecoseq/globalmixins');
 var zidecoseq = require('../zidecoseq');
 
 module.exports = function(sequelize, DataTypes) {
-    // var globalmixin = sequelize.globalmixin;
     var TimeEntry = zidecoseq.define(sequelize, 'TimeEntry', {
         entryTime: DataTypes.DATE,
-        origin: DataTypes.STRING
+        origin: {
+            type: DataTypes.ENUM('manual', 'imported', 'transposed'),
+            defaultValue: 'transposed',
+            allowNull: false
+        },
+        status: {
+            type: DataTypes.ENUM('valid', 'invalid', 'canceled', 'unprocessed'),
+            defaultValue: 'unprocessed',
+            allowNull: false
+
+        }
     }, {
         classMethods: {
             associate: function(models) {

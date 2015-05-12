@@ -112,11 +112,12 @@ var generateEntryPeriodsSync = function(models, entries) {
             }
 
             //Create our period
+            //default: origin: 'generated',
             period = {
                 startTime: startDateForPeriod,
                 endTime: endDate,
                 dayReference: dayReference,
-                origin: 'generated',
+
                 userId: entry.user.id,
                 startEntryId: startEntryId,
                 endEntryId: endEntryId
@@ -187,6 +188,90 @@ var persistNewEntries = function(models, periods) {
     });
 };
 
+var getParameters = function(models, userId, argStartDate, argEndDate, options) {
+    //Get all "AuthorizedSchedule"
+
+    // validSince: {
+    //     type: DataTypes.DATE,
+    //     allowNull: false
+    // },
+
+    // //Null value indicates STILL valid.
+    // validUntil: {
+    //     type: DataTypes.DATE,
+    //     allowNull: true
+    // },
+
+    var startDate = argStartDate ? moment(argStartDate).toDate() : moment().startOf('month');
+    var endDate = argEndDate ? moment(argEndDate).toDate() : moment().startOf('month').add(1, 'months');
+
+    var query = {
+        where: {
+            entryTime: {
+                gte: startDate,
+                lt: endDate
+            },
+            userId: userId
+        },
+        include: [{
+            model: models.ZidecoUser,
+            as: 'user'
+        }]
+
+    };
+
+
+    return models.UserXSchedule.findAll(query).then(function(userSchedule) {
+        console('ok' + userSchedule);
+
+        // userAlias.getUser().then(function(zidecoUser) {
+        //     //Finaly callback with valid user.
+        //     zidecoUser.isValid();
+        //     callback(null, zidecoUser, body);
+        // }, treatModelError);
+
+    });
+
+
+
+    //Get all "ValidPeriodAuthorization" for user in period given
+};
+
+var getTimeEntries = function(models, userId, argStartDate, argEndDate, options) {
+    options = options || {
+        saveGeneratedEntries: true,
+        deleteEntriesForPeriod: true
+    };
+
+    var startDate = argStartDate ? moment(argStartDate).toDate() : moment().startOf('month');
+    var endDate = argEndDate ? moment(argEndDate).toDate() : moment().startOf('month').add(1, 'months');
+
+    var query = {
+        where: {
+            entryTime: {
+                gte: startDate,
+                lt: endDate
+            },
+            userId: userId
+        },
+        include: [{
+            model: models.ZidecoUser,
+            as: 'user'
+        }]
+
+    };
+
+    return models.TimeEntry.findAll(query);
+
+    //Return the promise.
+    // return models.TimeEntry.findAll(query).then(function(entries) {
+    //     if (_.isEmpty(entries)) {
+    //         return;
+    //     }
+    // }
+
+};
+
 var processTimeEntries = function(models, userId, argStartDate, argEndDate, options) {
     options = options || {
         saveGeneratedEntries: true,
@@ -211,11 +296,17 @@ var processTimeEntries = function(models, userId, argStartDate, argEndDate, opti
 
     };
 
+    // getTimeEntries(models, userId, argStartDate, argEndDate, options)
+    // .then(//)
+
+
     //Return the promise.
     return models.TimeEntry.findAll(query).then(function(entries) {
         if (_.isEmpty(entries)) {
             return;
         }
+
+
 
         //Now, we will chain some promisses that will run sequentially the following fases:
         //Generate entries.
@@ -252,6 +343,29 @@ var processTimeEntries = function(models, userId, argStartDate, argEndDate, opti
     });
 };
 
+
+var getUser = function(models, userId, startDate, endDate) {
+    var querySchedule = {
+        where: {
+            validSince: {
+                gte: startDate,
+                lt: endDate
+            }
+        }
+    };
+    models.ZidecoUser.find({
+        id: userId
+    }).then(function(user) {
+        user.getSchedules(querySchedule).then(function(sched) {
+            console.log('ok');
+        });
+
+
+    });
+
+};
+
+
 var processTimeEntriesClean = function(models, serviceRequestObject, parameters) {
     //Run stuff. When finished, save new satus for serviceRequestObject
     console.log('Will run processTimeEntriesClean for period: ' + parameters.startDate + ' to ' + parameters.endDate);
@@ -264,14 +378,20 @@ var processTimeEntriesClean = function(models, serviceRequestObject, parameters)
         });
     }
 
+    //Everything is processed for a single user, so we start with him:
 
-    return processTimeEntries(models, parameters.userId, parameters.startDate, parameters.endDate).then(function() {
-        serviceRequestObject.status = 'finished';
-        serviceRequestObject.save().then(function(o) {
-            console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
-        });
 
-    });
+
+    return getParameters(models, parameters.userId, parameters.startDate, parameters.endDate);
+
+    //TODO: disabilita para testes.
+    // return processTimeEntries(models, parameters.userId, parameters.startDate, parameters.endDate).then(function() {
+    //     serviceRequestObject.status = 'finished';
+    //     serviceRequestObject.save().then(function(o) {
+    //         console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
+    //     });
+
+    // });
 };
 
 

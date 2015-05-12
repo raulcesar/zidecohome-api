@@ -2,7 +2,7 @@
 var zidecoseq = require('../zidecoseq');
 
 module.exports = function(sequelize, DataTypes) {
-   var UserXRole = zidecoseq.define(sequelize, 'UserXRole', 
+   var UserXrole = zidecoseq.define(sequelize, 'UserXrole', 
       {
          startDate: {
             type: DataTypes.DATE,
@@ -11,5 +11,5 @@ module.exports = function(sequelize, DataTypes) {
          endDate: DataTypes.DATE
       });
 
-   return UserXRole;
+   return UserXrole;
 };

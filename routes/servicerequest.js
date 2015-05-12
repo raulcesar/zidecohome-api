@@ -69,7 +69,7 @@ function handleIns(req, res) {
 
     //We insert the service request and start the specified service.
     var recievedObject = req.body;
-    var serviceParameters = recievedObject.parameters;
+    var serviceParameters = recievedObject.serviceParameters;
 
     var service = ServicesByCategories[recievedObject.serviceCategory][recievedObject.serviceName];
     if (!service) {
