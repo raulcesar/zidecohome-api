@@ -12,9 +12,11 @@ var globalmixin = {
 };
 
 var zidecoseq = {
-	define : function(db, modelname, attributes, options) {
+	define : function(models, modelname, attributes, options) {
+		var db = models.db;
 		var extendedAttributes = _.extend(attributes, globalmixin.attributes);
 		var ret = db.define(modelname, extendedAttributes, options);
+		models[modelname] = ret;
 		return ret;
 	}
 };

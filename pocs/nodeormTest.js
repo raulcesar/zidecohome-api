@@ -2,7 +2,36 @@
 var conf = require('../config/conf').get('localhost'); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
 var moment = require('moment');
 // var authenticationUtil = require('./infra/authenticationUtil')(conf);
-var models = require('../models')(conf); //ORM will be needed for passport 
+
+
+
+
+var models = require('../models'); //ORM will be needed for passport 
+
+models(conf, function(m) {
+    m.db.drop(function() {
+        m.db.sync(function() {
+            console.log('hello');
+
+            var newRecord = {
+                identifier: 'su',
+                disabled: false
+            };
+            // newRecord.id = 1;
+            // newRecord.name = "John"
+            m.ZidecoUser.create(newRecord, function(err, results) {
+                console.log('creie????');
+                m.db.close();
+            });
+
+
+            
+        });
+    });
+});
+
+
+// select * from "ZidecoUser"
 
 
 // var startDate = moment().startOf('month').toDate();

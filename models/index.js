@@ -1,51 +1,51 @@
 'use strict';
 
-module.exports = function(conf) {
+module.exports = function(conf, cb) {
 
     var fs = require('fs');
     var path = require('path');
     // var Sequelize = require('sequelize');
     // var Sequelize = require('../submodules/sequelize');
-    var orm = require("orm");
+    var orm = require('orm');
 
 
 
 
-    var options = {
-        host: conf.db.postgres.host,
-        port: conf.db.postgres.port,
-        dialect: 'postgres',
-        // logging: false,
-        logging: function(str) {
-            console.log(str);
+    // var options = {
+    //     host: conf.db.postgres.host,
+    //     port: conf.db.postgres.port,
+    //     dialect: 'postgres',
+    //     // logging: false,
+    //     logging: function(str) {
+    //         console.log(str);
 
-        },
-        define: {
-            freezeTableName: true,
+    //     },
+    //     define: {
+    //         freezeTableName: true,
 
 
-            // underscored: false,
-            // freezeTableName: false,
-            // syncOnAssociation: true,
-            // charset: 'utf8',
-            // collate: 'utf8_general_ci',
-            // classMethods: {method1: function() {}},
-            // instanceMethods: {method2: function() {}},
-            timestamps: true
-        },
-        // quoteIdentifiers: false,
-        pool: {
-            maxConnections: 10,
-            maxIdleTime: 30
-        }
-    };
+    //         // underscored: false,
+    //         // freezeTableName: false,
+    //         // syncOnAssociation: true,
+    //         // charset: 'utf8',
+    //         // collate: 'utf8_general_ci',
+    //         // classMethods: {method1: function() {}},
+    //         // instanceMethods: {method2: function() {}},
+    //         timestamps: true
+    //     },
+    //     // quoteIdentifiers: false,
+    //     pool: {
+    //         maxConnections: 10,
+    //         maxIdleTime: 30
+    //     }
+    // };
 
     var opts = {
         host: conf.db.postgres.host,
         database: conf.db.postgres.database,
         user: conf.db.postgres.user,
         password: conf.db.postgres.password,
-        protocol: 'pgsql',
+        protocol: 'postgres',
         // socketPath: '/var/run/mysqld/mysqld.sock',
         port: conf.db.postgres.port,
         query: {
@@ -60,7 +60,9 @@ module.exports = function(conf) {
 
 
 
-        var models = {};
+        var models = {
+            db:db
+        };
         //Read all models from current directory, filtering current file (of course)
         fs
             .readdirSync(__dirname)
@@ -69,8 +71,7 @@ module.exports = function(conf) {
                 return validFiles.indexOf(file) >= 0;
             })
             .forEach(function(file) {
-                var model = require('./' + file)(db);
-                // var model = sequelize['import'](path.join(__dirname, file));
+                require('./' + file)(models);
                 // models[model.name] = model;
                 console.log('file: ' + file);
             });
@@ -83,11 +84,10 @@ module.exports = function(conf) {
 
         // models.sequelize = sequelize;
         // models.Sequelize = Sequelize;
+        // models.db = db;
 
-        return models;
-
+        cb( models);
     });
-
-
+    
 
 };

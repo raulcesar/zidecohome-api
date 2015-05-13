@@ -3,16 +3,15 @@ var zidecoseq = require('../zidecoseq');
 var _ = require('lodash');
 var moment = require('moment');
 
-module.exports = function(db, DataTypes) {
+module.exports = function(models) {
     // var globalmixin = sequelize.globalmixin;
-    var ZidecoUser = zidecoseq.define(db, 'ZidecoUser', {
-            identifier: DataTypes.STRING,
-            disabled: DataTypes.BOOLEAN,
-            logintype: DataTypes.STRING,
-            passhash: DataTypes.STRING,
-            experationDate: DataTypes.DATE
+    var ZidecoUser = zidecoseq.define(models, 'ZidecoUser', {
+            identifier: { type: 'text', size: 2000 },
+            disabled: {type: 'boolean'},
+            logintype: {type: 'text'},
+            passhash: { type: 'text', size: 2000 },
+            experationDate: {type: 'date'}
         },
-
         {
 
             methods: {
@@ -62,7 +61,7 @@ module.exports = function(db, DataTypes) {
     );
 
 
-    ZidecoUser.hasMany('message', db.models.message, { required: true, reverse: 'comments', autoFetch: true });
+    ZidecoUser.hasMany('aliases', models.ZidecoUserAlias);
     return ZidecoUser;
 };
             // classMethods: {
