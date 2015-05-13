@@ -45,7 +45,13 @@ var createTimeEntries = function(models, user) {
         moment('11-05-2015 15:19', 'DD-MM-YYYY HH:mm'),
         moment('11-05-2015 19:00', 'DD-MM-YYYY HH:mm'),
 
-        moment('12-05-2015 07:59', 'DD-MM-YYYY HH:mm')
+        moment('12-05-2015 07:59', 'DD-MM-YYYY HH:mm'),
+        moment('12-05-2015 12:51', 'DD-MM-YYYY HH:mm'),
+        moment('12-05-2015 14:31', 'DD-MM-YYYY HH:mm'),
+        moment('12-05-2015 19:13', 'DD-MM-YYYY HH:mm'),
+        moment('12-05-2015 21:01', 'DD-MM-YYYY HH:mm'),
+
+        moment('13-05-2015 08:44', 'DD-MM-YYYY HH:mm')
 
     ];
 
