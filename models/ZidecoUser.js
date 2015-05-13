@@ -3,9 +3,9 @@ var zidecoseq = require('../zidecoseq');
 var _ = require('lodash');
 var moment = require('moment');
 
-module.exports = function(sequelize, DataTypes) {
+module.exports = function(db, DataTypes) {
     // var globalmixin = sequelize.globalmixin;
-    var ZidecoUser = zidecoseq.define(sequelize, 'ZidecoUser', {
+    var ZidecoUser = zidecoseq.define(db, 'ZidecoUser', {
             identifier: DataTypes.STRING,
             disabled: DataTypes.BOOLEAN,
             logintype: DataTypes.STRING,
@@ -14,37 +14,8 @@ module.exports = function(sequelize, DataTypes) {
         },
 
         {
-            classMethods: {
-                associate: function(models) {
-                    ZidecoUser.belongsToMany(models.UserRole, {
-                        as: {
-                            singular: 'role',
-                            plural: 'roles'
-                        },
-                        through: {
-                            model: models.UserXrole
-                        }
-                    });
 
-                    ZidecoUser.belongsToMany(models.AuthorizedSchedule, {
-                        as: {
-                            singular: 'schedule',
-                            plural: 'schedules'
-                        },
-                        through: models.UserXSchedule
-                    });
-
-                    ZidecoUser.hasMany(models.ZidecoUserAlias, {
-                        as: {
-                            singular: 'alias',
-                            plural: 'aliases'
-                        }
-                    });
-
-                }
-            },
-
-            instanceMethods: {
+            methods: {
                 isValid: function(argDateToCheck) {
                     if (this.disabled === true) {
                         return false;
@@ -90,5 +61,36 @@ module.exports = function(sequelize, DataTypes) {
 
     );
 
+
+    ZidecoUser.hasMany('message', db.models.message, { required: true, reverse: 'comments', autoFetch: true });
     return ZidecoUser;
 };
+            // classMethods: {
+            //     associate: function(models) {
+            //         ZidecoUser.belongsToMany(models.UserRole, {
+            //             as: {
+            //                 singular: 'role',
+            //                 plural: 'roles'
+            //             },
+            //             through: {
+            //                 model: models.UserXrole
+            //             }
+            //         });
+
+            //         ZidecoUser.belongsToMany(models.AuthorizedSchedule, {
+            //             as: {
+            //                 singular: 'schedule',
+            //                 plural: 'schedules'
+            //             },
+            //             through: models.UserXSchedule
+            //         });
+
+            //         ZidecoUser.hasMany(models.ZidecoUserAlias, {
+            //             as: {
+            //                 singular: 'alias',
+            //                 plural: 'aliases'
+            //             }
+            //         });
+
+            //     }
+            // },

@@ -1,20 +1,20 @@
 'use strict';
 // var Sequelize = require('sequelize');
-var Sequelize = require('../submodules/sequelize');
+// var Sequelize = require('../submodules/sequelize');
 var _ = require('lodash');
 
 var globalmixin = {
   attributes: {
-      createdBy: {
-          type: Sequelize.STRING
-      }
+      // createdBy: {
+      //     type: Sequelize.STRING
+      // }
   }
 };
 
 var zidecoseq = {
-	define : function(sequelize, modelname, attributes, options) {
+	define : function(db, modelname, attributes, options) {
 		var extendedAttributes = _.extend(attributes, globalmixin.attributes);
-		var ret = sequelize.define(modelname, extendedAttributes, options);
+		var ret = db.define(modelname, extendedAttributes, options);
 		return ret;
 	}
 };
