@@ -1,31 +1,34 @@
 'use strict';
 var zidecoseq = require('../zidecoseq');
 
-module.exports = function(sequelize, DataTypes) {
-    var UserRole = zidecoseq.define(sequelize, 'UserRole', {
-            code: DataTypes.STRING,
-            description: DataTypes.STRING
-        }, {
-            classMethods: {
-                associate: function(models) {
-                    UserRole.belongsToMany(models.ZidecoUser, {
-                        as: {
-                            singular: 'user',
-                            plural: 'users'
-                        },
-
-                        through: {
-                            model: models.UserXrole
-                        }
-                    });
-
-
-
-                }
-            }
+module.exports = function(models) {
+    var UserRole = zidecoseq.define(models, 'UserRole', {
+        code: {
+            type: 'text',
+            size: 100
+        },
+        description: {
+            type: 'text',
+            size: 500
         }
+    });
 
-    );
+
+    var userXrole = {
+        startDate: {
+            type: 'date',
+            required: true
+        },
+        endDate: {
+            type: 'date'
+        },
+    };
+
+    var opts = {
+        reverse: 'roles',
+        key: true
+    };
+    UserRole.hasMany('users', models.ZidecoUser, userXrole, opts);
 
     return UserRole;
 };

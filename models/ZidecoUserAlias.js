@@ -1,22 +1,14 @@
 'use strict';
 var zidecoseq = require('../zidecoseq');
 
-module.exports = function(db, DataTypes) {
-   // var globalmixin = sequelize.globalmixin;
-   var ZidecoUserAlias = zidecoseq.define(db, 'ZidecoUserAlias', {
+module.exports = function(models) {
+   var ZidecoUserAlias = zidecoseq.define(models, 'ZidecoUserAlias', {
          identifier: { type: 'text', size: 2000 }
       }
-      // ,
-
-      // {
-      //    classMethods: {
-      //       associate: function(models) {
-      //          ZidecoUserAlias.belongsTo(models.ZidecoUser, {as: 'user', foreignKey: { allowNull: false } });
-      //       }
-      //    },
-      // }
-
    );
+
+   var opts = {reverse: 'aliases'};
+   ZidecoUserAlias.hasOne('user', models.ZidecoUser, {}, opts);
 
    return ZidecoUserAlias;
 };

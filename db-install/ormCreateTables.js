@@ -7,57 +7,54 @@ var moment = require('moment');
 
 
 var models = require('../models'); //ORM will be needed for passport 
+var createUsers = require('./ormCreateUsers');
 
 models(conf, function(m) {
-    console.log('hello');
+    m.db.drop(function() {
+        m.db.sync(function() {
+            console.log('hello');
+            createUsers.run(m);
+            //Create roles.
+            // m.db.close();
 
-    // var newRecord = {
-    //     identifier: 'su',
-    //     disabled: false
-    // };
-    // newRecord.id = 1;
-    // newRecord.name = "John"
 
-    m.ZidecoUser.get(1, function(err, user) {
-        user.getAliases(function(err, aliases) {
-            console.log('aliaes: ' + aliases.length);
+            // m.ZidecoUser.create({
+            //     identifier: 'su',
+            //     disabled: false
+            // }, function(err, user) {
+            //     if (err) {
+            //         console.log('deu pau: ' + err);
+            //     }
+            //     console.log('identifier: ' + user.identifier);
+            //     console.log('id: ' + user.id);
+
+            //     //create the alias... por enquanto nao tem chave est.
+
+            //     m.ZidecoUserAlias.create({
+            //         identifier: 'su-alias'
+            //     }, function(err, alias) {
+            //         alias.setUser(user, function(err, arg2) {
+            //             if (err) {
+            //                 console.log('pau: ' + err);
+            //             }
+            //             m.db.close();
+            //         });
+            //         // user.addAlias(alias);
+            //         // user.save(function(err, arg2) {
+            //         //     if (err) {
+            //         //         console.log('pau: ' + err);
+            //         //     }
+            //         //     m.db.close();
+
+            //         // });
+            //     });
+            // });
+
+
 
         });
     });
-
-    // m.ZidecoUser.create(newRecord, function(err, user) {
-    //     if (err) {
-    //         console.log('deu pau: ' + err);
-    //     }
-    //     console.log('identifier: ' + user.identifier);
-    //     console.log('id: ' + user.id);
-
-    //     //create the alias... por enquanto nao tem chave est.
-
-    //     m.ZidecoUserAlias.create({
-    //         identifier: 'su-alias'
-    //     }, function(err, alias) {
-    //         alias.setUser(user, function(err, arg2) {
-    //             if (err) {
-    //                 console.log('pau: ' + err);
-    //             }
-    //             m.db.close();
-    //         });
-    //         // user.addAlias(alias);
-    //         // user.save(function(err, arg2) {
-    //         //     if (err) {
-    //         //         console.log('pau: ' + err);
-    //         //     }
-    //         //     m.db.close();
-
-    //         // });
-    //     });
-
-
-
-    //     // params.message_id = message.id;
 });
-
 
 
 

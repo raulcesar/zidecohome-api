@@ -55,7 +55,8 @@ module.exports = function(conf, cb) {
     };
 
     orm.connect(opts, function(err, db) {
-        var validFiles = ['ZidecoUser.js', 'ZidecoUserAlias.js'];
+        var validFiles = ['ZidecoUser.js', 'ZidecoUserAlias.js', 'TimeEntry.js', 'UserRole.js' ];
+        // var validFiles = ['ZidecoUser.js', 'ZidecoUserAlias.js', 'UserRole.js'];
         console.log('connected');
 
 

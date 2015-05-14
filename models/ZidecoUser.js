@@ -60,8 +60,9 @@ module.exports = function(models) {
 
     );
 
-
-    ZidecoUser.hasMany('aliases', models.ZidecoUserAlias);
+    // var opts = {key: true, addAccessor: 'addAlias'};
+    var opts = {key: true};
+    ZidecoUser.hasMany('roles', models.ZidecoUserAlias, {}, opts);
     return ZidecoUser;
 };
             // classMethods: {
