@@ -48,6 +48,12 @@ module.exports =
         moment('12-05-2015 19:13', 'DD-MM-YYYY HH:mm'),
         moment('12-05-2015 21:01', 'DD-MM-YYYY HH:mm'),
 
-        moment('13-05-2015 08:44', 'DD-MM-YYYY HH:mm')
+        //TODO: Aqui, temos um atestado de comparecimento!!!!!
+        moment('13-05-2015 08:44', 'DD-MM-YYYY HH:mm'),
+        moment('13-05-2015 11:56', 'DD-MM-YYYY HH:mm'),
+        moment('13-05-2015 13:31', 'DD-MM-YYYY HH:mm'),
+        moment('13-05-2015 19:07', 'DD-MM-YYYY HH:mm'),
+        //TODO: moment('13-05-2015 ??:??', 'DD-MM-YYYY HH:mm'),
+
 
     ];
