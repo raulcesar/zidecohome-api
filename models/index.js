@@ -56,8 +56,8 @@ module.exports = function(conf, cb) {
     };
 
     orm.connect(opts, function(err, db) {
-        var validFiles = ['ZidecoUser.js', 'TimeEntry.js', 'ZidecoUserAlias.js', 'UserRole.js' ];
-        // var validFiles = ['ZidecoUser.js', 'ZidecoUserAlias.js', 'UserRole.js'];
+        // var validFiles = ['ZidecoUser.js', 'TimeEntry.js', 'ZidecoUserAlias.js', 'UserRole.js', 'TimeEntryPeriod.js', 'AuthorizedSchedule.js', 'ServiceRequest.js' ];
+        var nonModelFiles = ['index.js'];
         console.log('connected');
 
 
@@ -71,7 +71,7 @@ module.exports = function(conf, cb) {
             .readdirSync(__dirname)
             .filter(function(file) {
                 // return (file.indexOf('.') !== 0) && (file !== 'index.js') && (file !== 'ConstantEnums.js');
-                return validFiles.indexOf(file) >= 0;
+                return (file.indexOf('.') !== 0) && nonModelFiles.indexOf(file) < 0;
             })
             .forEach(function(file) {
                 var retfunc = require('./' + file)(models);

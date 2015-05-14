@@ -14,15 +14,17 @@ module.exports = function(models) {
     });
 
 
-    var userXrole = {
-        startDate: {
-            type: 'date',
-            required: true
-        },
-        endDate: {
-            type: 'date'
-        }
-    };
+
+    var postprocess = function() {
+        var userXrole = {
+            startDate: {
+                type: 'date',
+                required: true
+            },
+            endDate: {
+                type: 'date'
+            }
+        };
 
         var opts = {
             reverse: 'roles',
@@ -33,10 +35,10 @@ module.exports = function(models) {
             mergeId: 'role_id',
             mergeAssocId: 'user_id'
         };
-    var postprocess = function() {
+
         UserRole.hasMany('users', models.ZidecoUser, userXrole, opts);
     };
-    
+
 
     return postprocess;
 };

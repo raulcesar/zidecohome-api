@@ -8,49 +8,15 @@ var moment = require('moment');
 
 var models = require('../models'); //ORM will be needed for passport 
 var createUsers = require('./ormCreateUsers');
+var createSchedules = require('./ormCreateAuthorizedSchedules.js');
 
 models(conf, function(m) {
     m.db.drop(function() {
         m.db.sync(function() {
             console.log('hello');
-            createUsers.run(m);
-            //Create roles.
-            // m.db.close();
-
-
-            // m.ZidecoUser.create({
-            //     identifier: 'su',
-            //     disabled: false
-            // }, function(err, user) {
-            //     if (err) {
-            //         console.log('deu pau: ' + err);
-            //     }
-            //     console.log('identifier: ' + user.identifier);
-            //     console.log('id: ' + user.id);
-
-            //     //create the alias... por enquanto nao tem chave est.
-
-            //     m.ZidecoUserAlias.create({
-            //         identifier: 'su-alias'
-            //     }, function(err, alias) {
-            //         alias.setUser(user, function(err, arg2) {
-            //             if (err) {
-            //                 console.log('pau: ' + err);
-            //             }
-            //             m.db.close();
-            //         });
-            //         // user.addAlias(alias);
-            //         // user.save(function(err, arg2) {
-            //         //     if (err) {
-            //         //         console.log('pau: ' + err);
-            //         //     }
-            //         //     m.db.close();
-
-            //         // });
-            //     });
-            // });
-
-
+            createSchedules.run(m).then(function(defaultSchedule) {
+                createUsers.run(m, defaultSchedule);
+           });
 
         });
     });
@@ -59,6 +25,9 @@ models(conf, function(m) {
 
 
 // select * from "ZidecoUser"
+// select * from "AuthorizedSchedule"
+// select * from "userXauthorizedSchedule"
+
 
 
 // var startDate = moment().startOf('month').toDate();

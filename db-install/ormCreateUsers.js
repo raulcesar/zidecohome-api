@@ -11,7 +11,7 @@ var doNothingCB = function(err, obj) {
     return;
 };
 
-var createUsers = function(m, authorizedSchedule) {
+var createUsers = function(m, defaultSchedule) {
     var beginingOfTime = moment('01-01-1990', 'DD-MM-YYYY').toDate();
     //Create SuperUser ROLE:
     m.UserRole.create({
@@ -44,15 +44,6 @@ var createUsers = function(m, authorizedSchedule) {
             identifier: 'raul@zideco.org',
             disabled: false
         }, function(err, raulUser) {
-            var data = moment().toDate();
-
-                // m.TimeEntry.create({
-                //     user_id: raulUser.id,
-                //     entryTime: data
-                // }, function(err) {
-                //     console.log('porra' + err);
-                // });
-
             //Create Aliases
             m.ZidecoUserAlias.create({
                 user_id: raulUser.id,
@@ -66,46 +57,40 @@ var createUsers = function(m, authorizedSchedule) {
 
 
             // Set roles.
-            // suRole.extra = {startDate: beginingOfTime};
-            // raulUser.setRoles([suRole], doNothingCB);
-            // raulUser.getR
-            // suRole.addUser(raulUser, {startDate: beginingOfTime});
             raulUser.addRole(suRole, {startDate: beginingOfTime});
 
-            //Create time entries for this user
+            // Add default schedule
+            raulUser.addAuthorizedSchedule(defaultSchedule, {startDate: beginingOfTime});
 
+           //Create time entries for this user
             createTimeEntries.run(m, raulUser);
 
         });
 
+        //Create user Yara:
+        m.ZidecoUser.create({
+            identifier: 'yara@zideco.org',
+            disabled: false
+        }, function(err, raulUser) {
+            //Create Aliases
+            m.ZidecoUserAlias.create({
+                user_id: raulUser.id,
+                identifier: 'yara@zideco.org'
+            }, doNothingCB);
 
-        //     createNocturnalSessions.run(models, newUser);
+            m.ZidecoUserAlias.create({
+                user_id: raulUser.id,
+                identifier: 'yara.teixeira@gmail.com'
+            }, doNothingCB);
 
 
+            // Set roles.
+            raulUser.addRole(suRole, {startDate: beginingOfTime});
 
-        // //Create user YARA:
-        // models.ZidecoUser.create({
-        //     identifier: 'yara@zideco.org',
-        //     disabled: false
-        // }).then(function(newUser) {
-        //     //Create some aliases for raul...
-        //     var aliasDefaultRaul = models.ZidecoUserAlias.build({
-        //         identifier: 'yara@zideco.org'
-        //     });
-        //     aliasDefaultRaul.setUser(newUser, {
-        //         save: false
-        //     });
-        //     aliasDefaultRaul.save();
+           //Create time entries for this user
+            // createTimeEntries.run(m, raulUser);
 
-        //     var aliasGmail = models.ZidecoUserAlias.build({
-        //         identifier: 'yara.teixeira@gmail.com'
-        //     });
-        //     aliasGmail.setUser(newUser, {
-        //         save: false
-        //     });
-        //     aliasGmail.save();
-        // });
-
+        });
 
     });
 

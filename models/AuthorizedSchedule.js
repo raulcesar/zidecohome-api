@@ -5,29 +5,62 @@ var zidecoseq = require('../zidecoseq');
     This entity represents an authorized schedule for normal dates
 
 */
-module.exports = function(sequelize, DataTypes) {
-    var AuthorizedSchedule = zidecoseq.define(sequelize, 'AuthorizedSchedule', {
+module.exports = function(models) {
+    var AuthorizedSchedule = zidecoseq.define(models, 'AuthorizedSchedule', {
 
-        dayStart: DataTypes.INTEGER,
-        dayFinish: DataTypes.INTEGER,
-        hourStart: DataTypes.INTEGER,
-        hourFinish: DataTypes.INTEGER,
-        minuteStart: DataTypes.INTEGER,
-        minuteFinish: DataTypes.INTEGER,
+        hourStart: {
+            type: 'integer',
+            size: 4
+        },
+        hourFinish: {
+            type: 'integer',
+            size: 4
+        },
+        minuteStart: {
+            type: 'integer',
+            size: 4
+        },
+        minuteFinish: {
+            type: 'integer',
+            size: 4
+        },
 
-        description: DataTypes.STRING
-    }, {
-        classMethods: {
-            associate: function(models) {
-
-                AuthorizedSchedule.belongsToMany(models.ZidecoUser, {
-                    through: models.UserXSchedule,
-                    as: 'user'
-                });
-
-            }
+        description: {
+            type: 'text',
+            size: 200
         }
     });
 
-    return AuthorizedSchedule;
+    var postprocess = function() {
+        var userXauthorizedSchedule = {
+            startDate: {
+                type: 'date',
+                required: true
+            },
+            endDate: {
+                type: 'date'
+            }
+        };
+
+        var opts = {
+            reverse: 'authorizedSchedules',
+            reverseAddAccessor: 'addAuthorizedSchedule', //This is only valid in my version!
+            key: true,
+            addAccessor: 'addUser',
+            mergeTable: 'userXauthorizedSchedule',
+            mergeId: 'authorizedSchedule_id',
+            mergeAssocId: 'user_id'
+        };
+
+        AuthorizedSchedule.hasMany('users', models.ZidecoUser, userXauthorizedSchedule, opts);
+
+
+
+        // TimeEntryPeriod.hasOne('startEntry', models.TimeEntry);
+        // TimeEntryPeriod.hasOne('endEntry', models.TimeEntry);
+    };
+
+    return postprocess;
+
 };
+

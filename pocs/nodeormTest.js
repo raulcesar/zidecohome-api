@@ -50,6 +50,7 @@ models(conf, function(m) {
 // sELECT "t1"."code", "t1"."description", "t1"."id", "t2"."startDate", "t2"."endDate" FROM "UserRole" "t1" JOIN "UserRole_users" "t2" ON "t2"."userrole_id" = "t1"."id" WHERE "t2"."users_id" = 2    
 // select * from "userXrole";
 // select * from "UserRole_users"
+// select * from "ZidecoUser"
 
 // INSERT INTO "userXrole" ("startDate", "zidecouser_id", "roles_id") VALUES ('1990-01-01T00:00:00.000Z', 2, 1)
     // m.ZidecoUser.create(newRecord, function(err, user) {
