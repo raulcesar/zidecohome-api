@@ -1,4 +1,5 @@
 'use strict';
+var _ = require('lodash');
 
 module.exports = function(conf, cb) {
 
@@ -6,7 +7,7 @@ module.exports = function(conf, cb) {
     var path = require('path');
     // var Sequelize = require('sequelize');
     // var Sequelize = require('../submodules/sequelize');
-    var orm = require('orm');
+    var orm = require('../submodules/orm/lib/ORM');
 
 
 
@@ -55,7 +56,7 @@ module.exports = function(conf, cb) {
     };
 
     orm.connect(opts, function(err, db) {
-        var validFiles = ['ZidecoUser.js', 'ZidecoUserAlias.js', 'TimeEntry.js', 'UserRole.js' ];
+        var validFiles = ['ZidecoUser.js', 'TimeEntry.js', 'ZidecoUserAlias.js', 'UserRole.js' ];
         // var validFiles = ['ZidecoUser.js', 'ZidecoUserAlias.js', 'UserRole.js'];
         console.log('connected');
 
@@ -64,6 +65,7 @@ module.exports = function(conf, cb) {
         var models = {
             db:db
         };
+        var postprocesss = [];
         //Read all models from current directory, filtering current file (of course)
         fs
             .readdirSync(__dirname)
@@ -72,10 +74,21 @@ module.exports = function(conf, cb) {
                 return validFiles.indexOf(file) >= 0;
             })
             .forEach(function(file) {
-                require('./' + file)(models);
+                var retfunc = require('./' + file)(models);
+                if (_.isFunction(retfunc)) {
+                    postprocesss.push(require('./' + file)(models));
+                }
+                
                 // models[model.name] = model;
                 console.log('file: ' + file);
             });
+
+
+        postprocesss.forEach(function(func) {
+            func();
+        });
+
+
 
         // Object.keys(models).forEach(function(modelName) {
         //     if ('associate' in models[modelName]) {

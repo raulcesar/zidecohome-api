@@ -21,7 +21,7 @@
     "mariasql": "^0.1.21",
     "moment": "^2.10.2",
     "morgan": "~1.0.0",
-    "orm": "^2.1.24",
+    // "orm": "^2.1.24", For now, using my version
     "passport": "^0.2.1",
     "passport-strategy": "^1.0.0",
     "passport.socketio": "^3.4.1",

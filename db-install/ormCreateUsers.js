@@ -12,7 +12,7 @@ var doNothingCB = function(err, obj) {
 };
 
 var createUsers = function(m, authorizedSchedule) {
-    var beginingOfTime = moment('01-01-1990', 'DD-MM-YYYY');
+    var beginingOfTime = moment('01-01-1990', 'DD-MM-YYYY').toDate();
     //Create SuperUser ROLE:
     m.UserRole.create({
         code: 'SU',
@@ -31,8 +31,11 @@ var createUsers = function(m, authorizedSchedule) {
                 alias.setUser(su, doNothingCB);
             });
 
+            console.log(su.roles);
+
             //Set roles.
-            su.setRoles([suRole]);
+            suRole.addUser(su, {startDate: beginingOfTime});
+            // su.setRoles([suRole]);
 
         });
 
@@ -63,7 +66,11 @@ var createUsers = function(m, authorizedSchedule) {
 
 
             // Set roles.
-            raulUser.setRoles([suRole], doNothingCB);
+            // suRole.extra = {startDate: beginingOfTime};
+            // raulUser.setRoles([suRole], doNothingCB);
+            // raulUser.getR
+            // suRole.addUser(raulUser, {startDate: beginingOfTime});
+            raulUser.addRole(suRole, {startDate: beginingOfTime});
 
             //Create time entries for this user
 

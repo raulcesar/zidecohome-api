@@ -8,7 +8,7 @@ module.exports = function(models) {
             time: true,
             required: true
         },
-        
+
         origin: {
             type: 'enum',
             values: ['manual', 'imported', 'transposed'],
@@ -21,14 +21,18 @@ module.exports = function(models) {
             defaultValue: 'unprocessed',
             required: true
         }
-    } 
-    );
+    });
 
-    var opts = {
-        reverse: 'timeentries',
-        required: true
+    var postprocess = function() {
+        var opts = {
+            reverse: 'timeentries',
+            required: true
+        };
+
+        TimeEntry.hasOne('user', models.ZidecoUser, {}, opts);
     };
 
-    TimeEntry.hasOne('user', models.ZidecoUser, {}, opts);
-    return TimeEntry;
+
+
+    return postprocess;
 };

@@ -1,6 +1,7 @@
 'use strict';
 var conf = require('../config/conf').get('localhost'); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
 var moment = require('moment');
+var _ = require('lodash');
 // var authenticationUtil = require('./infra/authenticationUtil')(conf);
 
 
@@ -18,13 +19,39 @@ models(conf, function(m) {
     // newRecord.id = 1;
     // newRecord.name = "John"
 
-    m.ZidecoUser.get(1, function(err, user) {
+    m.ZidecoUser.one({identifier: 'raul@zideco.org'}, function(err, user) {
         user.getAliases(function(err, aliases) {
             console.log('aliaes: ' + aliases.length);
 
         });
+
+        user.getRoles(function(err, roles) {
+            console.log('roles: ' + roles.length);
+            roles.forEach(function(role) {
+                console.log('Role ' + role.code + ' since ' + moment(role.startDate).format('DD-MM-YYYY HH:mm') +
+                    ' until ' + 
+                    (_.isEmpty(role.endDate) ? 'ETERNITY' : moment(role.endDate).format('DD-MM-YYYY HH:mm')));
+
+            });
+
+        });
+
+        user.getTimeentries(function(err, timeentries) {
+            console.log('timeentries: ' + timeentries.length);
+            timeentries.forEach(function(timeEntry) {
+                console.log(moment(timeEntry.entryTime).format('DD-MM-YYYY HH:mm'));
+
+            });
+        });
+
     });
 
+
+// sELECT "t1"."code", "t1"."description", "t1"."id", "t2"."startDate", "t2"."endDate" FROM "UserRole" "t1" JOIN "UserRole_users" "t2" ON "t2"."userrole_id" = "t1"."id" WHERE "t2"."users_id" = 2    
+// select * from "userXrole";
+// select * from "UserRole_users"
+
+// INSERT INTO "userXrole" ("startDate", "zidecouser_id", "roles_id") VALUES ('1990-01-01T00:00:00.000Z', 2, 1)
     // m.ZidecoUser.create(newRecord, function(err, user) {
     //     if (err) {
     //         console.log('deu pau: ' + err);

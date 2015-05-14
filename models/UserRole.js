@@ -21,14 +21,22 @@ module.exports = function(models) {
         },
         endDate: {
             type: 'date'
-        },
+        }
     };
 
-    var opts = {
-        reverse: 'roles',
-        key: true
+        var opts = {
+            reverse: 'roles',
+            reverseAddAccessor: 'addRole', //This is only valid in my version!
+            key: true,
+            addAccessor: 'addUser',
+            mergeTable: 'userXrole',
+            mergeId: 'role_id',
+            mergeAssocId: 'user_id'
+        };
+    var postprocess = function() {
+        UserRole.hasMany('users', models.ZidecoUser, userXrole, opts);
     };
-    UserRole.hasMany('users', models.ZidecoUser, userXrole, opts);
+    
 
-    return UserRole;
+    return postprocess;
 };
