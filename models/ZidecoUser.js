@@ -1,50 +1,41 @@
 'use strict';
 var zidecoseq = require('../zidecoseq');
-var _ = require('lodash');
+// var _ = require('lodash');
 var moment = require('moment');
 
-module.exports = function(sequelize, DataTypes) {
+
+/**
+ZidecoUsers have the following "reverse" associations:
+
+roles
+aliases
+timeentires
+timeperiods
+
+*/
+module.exports = function(models) {
     // var globalmixin = sequelize.globalmixin;
-    var ZidecoUser = zidecoseq.define(sequelize, 'ZidecoUser', {
-            identifier: DataTypes.STRING,
-            disabled: DataTypes.BOOLEAN,
-            logintype: DataTypes.STRING,
-            passhash: DataTypes.STRING,
-            experationDate: DataTypes.DATE
-        },
-
-        {
-            classMethods: {
-                associate: function(models) {
-                    ZidecoUser.belongsToMany(models.UserRole, {
-                        as: {
-                            singular: 'role',
-                            plural: 'roles'
-                        },
-                        through: {
-                            model: models.UserXrole
-                        }
-                    });
-
-                    ZidecoUser.belongsToMany(models.AuthorizedSchedule, {
-                        as: {
-                            singular: 'schedule',
-                            plural: 'schedules'
-                        },
-                        through: models.UserXSchedule
-                    });
-
-                    ZidecoUser.hasMany(models.ZidecoUserAlias, {
-                        as: {
-                            singular: 'alias',
-                            plural: 'aliases'
-                        }
-                    });
-
-                }
+    var ZidecoUser = zidecoseq.define(models, 'ZidecoUser', {
+            identifier: {
+                type: 'text',
+                size: 2000
             },
+            disabled: {
+                type: 'boolean'
+            },
+            logintype: {
+                type: 'text'
+            },
+            passhash: {
+                type: 'text',
+                size: 2000
+            },
+            experationDate: {
+                type: 'date'
+            }
+        }, {
 
-            instanceMethods: {
+            methods: {
                 isValid: function(argDateToCheck) {
                     if (this.disabled === true) {
                         return false;
@@ -90,5 +81,34 @@ module.exports = function(sequelize, DataTypes) {
 
     );
 
-    return ZidecoUser;
+
+
+    // var postprocess = function() {
+    //     var userXrole = {
+    //         startDate: {
+    //             type: 'date',
+    //             required: true
+    //         },
+    //         endDate: {
+    //             type: 'date'
+    //         }
+    //     };
+
+    //     var opts = {
+    //         // reverse: 'roles',
+    //         key: true,
+    //         addAccessor: 'addRole',
+    //         mergeTable: 'userXrole',
+    //         mergeId: 'user_id',
+    //         mergeAssocId: 'role_id'
+            
+    //     };
+    // If we want all the members on "roles", than this is what we need to run!
+
+
+    //     ZidecoUser.hasMany('roles', models.UserRole, userXrole, opts);
+    // };
+
+    // return postprocess;
+    return;
 };

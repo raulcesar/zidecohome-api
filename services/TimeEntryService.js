@@ -33,7 +33,7 @@ var nocturnalSessionInterval = {
 This function generates the timePeriods based on a list of timeEntry items.
 It assumes all entries are from the same user.
 */
-var generateEntryPeriodsSync = function(models, entries) {
+var generateEntryPeriodsSync = function(userId, entries) {
     //Logic to generate time periods.
     var caps = {};
 
@@ -116,9 +116,9 @@ var generateEntryPeriodsSync = function(models, entries) {
             period = {
                 startTime: startDateForPeriod,
                 endTime: endDate,
-                dayReference: dayReference,
+                dayReference: dayReference.toDate(),
 
-                userId: entry.user.id,
+                user_id: userId,
                 startEntryId: startEntryId,
                 endEntryId: endEntryId
 
@@ -145,132 +145,38 @@ var generateEntryPeriodsSync = function(models, entries) {
 
 
 };
-var generateEntryPeriods = function(models, entries) {
+var generateEntryPeriods = function(userId, entries) {
     return Q.fcall(function() {
-        return generateEntryPeriodsSync(models, entries);
+        return generateEntryPeriodsSync(userId, entries);
     });
 };
 
 var deleteCurrentEntries = function(models, userId, startDate, endDate) {
     console.log('Deleting entries from: ' + startDate + ' to ' + endDate);
-    var filter = {
-        where: {
-            origin: 'generated',
-            userId: userId,
-
-            $or: [{
-                    startTime: {
-                        gte: startDate,
-                        lt: endDate
-                    }
-                },
-
-                {
-                    endTime: {
-                        gte: startDate,
-                        lt: endDate
-                    }
-                }
-
-            ]
-        }
-    };
-
-    return models.TimeEntryPeriod.destroy(filter).then(function(affectedRows) {
-        console.log('Deleted ' + affectedRows + ' rows.');
-    });
+    return models.TimeEntryPeriod.deleteUserEntriesOnPeriod(userId, startDate, endDate);
 };
+
 
 var persistNewEntries = function(models, periods) {
     console.log('Saving ' + periods.length + ' entries. ');
-    return models.TimeEntryPeriod.bulkCreate(periods).then(function(createdPeriods) {
-        console.log('created ' + createdPeriods.length + ' periods');
-    });
-};
 
-var getParameters = function(models, userId, argStartDate, argEndDate, options) {
-    //Get all "AuthorizedSchedule"
-
-    // validSince: {
-    //     type: DataTypes.DATE,
-    //     allowNull: false
-    // },
-
-    // //Null value indicates STILL valid.
-    // validUntil: {
-    //     type: DataTypes.DATE,
-    //     allowNull: true
-    // },
-
-    var startDate = argStartDate ? moment(argStartDate).toDate() : moment().startOf('month');
-    var endDate = argEndDate ? moment(argEndDate).toDate() : moment().startOf('month').add(1, 'months');
-
-    var query = {
-        where: {
-            entryTime: {
-                gte: startDate,
-                lt: endDate
-            },
-            userId: userId
-        },
-        include: [{
-            model: models.ZidecoUser,
-            as: 'user'
-        }]
-
-    };
+    var dbDefered = Q.defer();
+    //TODO: use transaction plugin.
+    // models.db.transaction(function (err, transaction) {
+    // });
 
 
-    return models.UserXSchedule.findAll(query).then(function(userSchedule) {
-        console('ok' + userSchedule);
-
-        // userAlias.getUser().then(function(zidecoUser) {
-        //     //Finaly callback with valid user.
-        //     zidecoUser.isValid();
-        //     callback(null, zidecoUser, body);
-        // }, treatModelError);
-
+    models.TimeEntryPeriod.create(periods, function(err, data) {
+        if (err) {
+            dbDefered.reject(err);
+            return;
+        }
+        dbDefered.resolve(data);
     });
 
-
-
-    //Get all "ValidPeriodAuthorization" for user in period given
+    return dbDefered.promise;
 };
 
-var getTimeEntries = function(models, userId, argStartDate, argEndDate, options) {
-    options = options || {
-        saveGeneratedEntries: true,
-        deleteEntriesForPeriod: true
-    };
-
-    var startDate = argStartDate ? moment(argStartDate).toDate() : moment().startOf('month');
-    var endDate = argEndDate ? moment(argEndDate).toDate() : moment().startOf('month').add(1, 'months');
-
-    var query = {
-        where: {
-            entryTime: {
-                gte: startDate,
-                lt: endDate
-            },
-            userId: userId
-        },
-        include: [{
-            model: models.ZidecoUser,
-            as: 'user'
-        }]
-
-    };
-
-    return models.TimeEntry.findAll(query);
-
-    //Return the promise.
-    // return models.TimeEntry.findAll(query).then(function(entries) {
-    //     if (_.isEmpty(entries)) {
-    //         return;
-    //     }
-    // }
-
-};
 
 var processTimeEntries = function(models, userId, argStartDate, argEndDate, options) {
     options = options || {
@@ -278,91 +184,67 @@ var processTimeEntries = function(models, userId, argStartDate, argEndDate, opti
         deleteEntriesForPeriod: true
     };
 
-    var startDate = argStartDate ? moment(argStartDate).toDate() : moment().startOf('month');
-    var endDate = argEndDate ? moment(argEndDate).toDate() : moment().startOf('month').add(1, 'months');
-
-    var query = {
-        where: {
-            entryTime: {
-                gte: startDate,
-                lt: endDate
-            },
-            userId: userId
-        },
-        include: [{
-            model: models.ZidecoUser,
-            as: 'user'
-        }]
-
-    };
-
-    // getTimeEntries(models, userId, argStartDate, argEndDate, options)
-    // .then(//)
-
+    var startDate = argStartDate ? moment(argStartDate).toDate() : moment().startOf('month').toDate();
+    var endDate = argEndDate ? moment(argEndDate).toDate() : moment().startOf('month').add(1, 'months').toDate();
 
     //Return the promise.
-    return models.TimeEntry.findAll(query).then(function(entries) {
+    //orm2 works on callbacks, so we will create our own promise!
+    var deferred = Q.defer();
+
+
+
+
+    var orm = models.orm;
+
+    var query = {
+        user_id: userId,
+        and: [{
+            entryTime: orm.gte(startDate)
+        }, {
+            entryTime: orm.lt(endDate)
+        }]
+    };
+
+    // models.TimeEntry.findAll(query)
+    models.TimeEntry.find(query, function(err, entries) {
         if (_.isEmpty(entries)) {
+            deferred.resolve();
             return;
         }
-
 
 
         //Now, we will chain some promisses that will run sequentially the following fases:
         //Generate entries.
         //Delete periods (when so optionized)
         //Save new periods (when so optionized)
-        return generateEntryPeriods(models, entries)
+        var generatedPeriods;
+        return generateEntryPeriods(userId, entries)
             .then(function(periods) {
-                var dbDefered = Q.defer();
-
+                generatedPeriods = periods;
                 if (options.deleteEntriesForPeriod) {
-                    deleteCurrentEntries(models, userId, startDate, endDate).then(function() {
-                        dbDefered.resolve(periods);
-                    });
-                } else {
-                    dbDefered.resolve(periods);
-                }
-                return dbDefered.promise;
-                // return deleteCurrentEntries(startDate, endDate);
-            })
-            .then(function(periods) {
-                if (options.saveGeneratedEntries) {
-                    return persistNewEntries(models, periods);
+                    return deleteCurrentEntries(models, userId, startDate, endDate);
                 }
 
-                return periods;
+                var dbDefered = Q.defer();
+                dbDefered.resolve(periods);
+                return dbDefered.promise;
+            })
+            .then(function() {
+
+                if (options.saveGeneratedEntries) {
+                    return persistNewEntries(models, generatedPeriods);
+                }
+                var dbDefered = Q.defer();
+                deferred.resolve(generatedPeriods);
+                return dbDefered.promise;
             });
 
         //On successfull generation, do persistance stuff!
 
 
-    }, function(err) {
-        console.log('Error processing entries: ' + err);
-        return;
-    });
-};
-
-
-var getUser = function(models, userId, startDate, endDate) {
-    var querySchedule = {
-        where: {
-            validSince: {
-                gte: startDate,
-                lt: endDate
-            }
-        }
-    };
-    models.ZidecoUser.find({
-        id: userId
-    }).then(function(user) {
-        user.getSchedules(querySchedule).then(function(sched) {
-            console.log('ok');
-        });
-
-
     });
 
+    return deferred.promise;
 };
 
 
@@ -373,25 +255,19 @@ var processTimeEntriesClean = function(models, serviceRequestObject, parameters)
     if (!parameters || !parameters.userId) {
         console.log('processTimeEntriesClean failed due to lack of userId param');
         serviceRequestObject.status = 'failed';
-        return serviceRequestObject.save().then(function(o) {
+        return serviceRequestObject.save(function(err, o) {
             console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
         });
     }
 
     //Everything is processed for a single user, so we start with him:
-
-
-
-    return getParameters(models, parameters.userId, parameters.startDate, parameters.endDate);
-
     //TODO: disabilita para testes.
-    // return processTimeEntries(models, parameters.userId, parameters.startDate, parameters.endDate).then(function() {
-    //     serviceRequestObject.status = 'finished';
-    //     serviceRequestObject.save().then(function(o) {
-    //         console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
-    //     });
-
-    // });
+    return processTimeEntries(models, parameters.userId, parameters.startDate, parameters.endDate).then(function() {
+        serviceRequestObject.status = 'finished';
+        serviceRequestObject.save(function(err, o) {
+            console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
+        });
+    });
 };
 
 

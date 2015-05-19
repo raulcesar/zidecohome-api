@@ -23,6 +23,8 @@ models.sequelize.sync({
         description: 'Default Schedule'
 
     }).then(function(authorizedSchedule) {
+        authorizedSchedule.run(models);
+
         createUsers.run(models, authorizedSchedule);
     });
 

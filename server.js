@@ -4,31 +4,17 @@
 
 'use strict';
 var express = require('express'), //Express framework
-  middleware = require('./infra/middleware'),
-  iosocketserver = require('./infra/socketserver'),
+    middleware = require('./infra/middleware'),
+    iosocketserver = require('./infra/socketserver'),
 
-  router = require('./infra/router'),
-  passport = require('passport')
-  ;
-
+    router = require('./infra/router'),
+    passport = require('passport');
 
 
-
-//Create express server.
-var app = express();
-var conf = require('./config/conf').get(app.settings.env); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
-var authenticationUtil = require('./infra/authenticationUtil')(conf);
-var models = require('./models')(conf); //ORM will be needed for passport 
-var zidecoUtils = require('./infra/zidecoUtils');
-
-app.set('authenticationUtil', authenticationUtil);
-app.set('conf', conf);
-app.set('ormmodels', models);
-app.set('zUtils', zidecoUtils);
-
-require('./infra/passportconf')(passport, models); // pass passport for configuration
-
-
+/// error handlers
+process.on('uncaughtException', function(err) {
+    console.log('Caught exception: ' + err.stack);
+});
 ///// catch 404 and forward to error handler
 //app.use(function(req, res, next) {
 //    var err = new Error('Not Found');
@@ -36,10 +22,6 @@ require('./infra/passportconf')(passport, models); // pass passport for configur
 //    next(err);
 //});
 
-/// error handlers
-process.on('uncaughtException', function (err) {
-    console.log('Caught exception: ' + err.stack);
-});
 
 //// production error handler
 //// no stacktraces leaked to user
@@ -51,47 +33,86 @@ process.on('uncaughtException', function (err) {
 //    });
 //});
 
-//Inicia servidor.
-var http = require('http');
-var server = http.createServer(app);
-
-//Configure connect 'middleware' (session, etc.)
-middleware.setup(app, conf, passport);
 
 
+//Create express server.
+var app = express();
+var conf = require('./config/conf').get(app.settings.env); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
+var authenticationUtil = require('./infra/authenticationUtil')(conf);
+var zidecoUtils = require('./infra/zidecoUtils');
+// var orm = require('./submodules/orm/lib/ORM');
 
-//configure and run socket.io server
-// iosocketserver.setup(conf, server);
-
-//Configure routes
-router.run(app, conf, passport);
-
-
-
-//models.sequelize.sync().success(function () {
-
-
-//});
+app.set('authenticationUtil', authenticationUtil);
+app.set('zUtils', zidecoUtils);
+app.set('conf', conf);
 
 
-
-//models.sequelize.sync().success(function () {
-//Comeca a escutar
-  server.listen(conf.server.port, function(){
-    if (app.settings.env === conf.validEnvs.dev) {
-      console.log('app.env: ' + app.settings.env);
-      console.log('process.env.NODE_ENV: ' + process.env.NODE_ENV);
-    }
-
-    console.log('I stand ready for subjugation (on port ' + conf.server.port + '), my master.');
-  });
-//});
-
-
-
+// var ormConnectOpts = {
+//     host: conf.db.postgres.host,
+//     database: conf.db.postgres.database,
+//     user: conf.db.postgres.user,
+//     password: conf.db.postgres.password,
+//     protocol: 'postgres',
+//     // socketPath: '/var/run/mysqld/mysqld.sock',
+//     port: conf.db.postgres.port,
+//     query: {
+//         pool: true,
+//         debug: true
+//     }
+// };
 
 
+//We need to connect and define our modle before we can continue.
+var models = require('./models');
+models(conf, function(m) {
+    app.set('ormmodels', m);
+    require('./infra/passportconf')(passport, m); // pass passport for configuration
+
+
+    //Start server
+    var http = require('http');
+    var server = http.createServer(app);
+
+    //Configure connect 'middleware' (session, etc.)
+    middleware.setup(app, conf, passport);
+
+    //configure and run socket.io server
+    // iosocketserver.setup(conf, server);
+
+    //Configure routes
+    router.run(app, conf, passport);
 
 
 
+    //models.sequelize.sync().success(function () {
+    //Comeca a escutar
+    server.listen(conf.server.port, function() {
+        if (app.settings.env === conf.validEnvs.dev) {
+            console.log('app.env: ' + app.settings.env);
+            console.log('process.env.NODE_ENV: ' + process.env.NODE_ENV);
+        }
 
+        console.log('I stand ready for subjugation (on port ' + conf.server.port + '), my master.');
+    });
+
+
+    console.log('calling orm express');
+});
+
+
+// app.use(orm.express(ormConnectOpts, {
+//     define: function(db, models, next) {
+//         models.db = db;
+//         require('./models')({
+//             type: 'middleware',
+//             models: models
+//         }); //ORM will be needed for passport 
+//         //Define all models and 
+//         app.set('ormmodels', models);
+//         console.log('calling orm express');
+
+//         // models.person = db.define("person", {...
+//         // });
+//         next();
+//     }
+// }));

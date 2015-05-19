@@ -1,32 +1,39 @@
 'use strict';
 var zidecoseq = require('../zidecoseq');
 
-module.exports = function(sequelize, DataTypes) {
-    var TimeEntry = zidecoseq.define(sequelize, 'TimeEntry', {
-        entryTime: DataTypes.DATE,
+
+module.exports = function(models) {
+    var TimeEntry = zidecoseq.define(models, 'TimeEntry', {
+        entryTime: {
+            type: 'date',
+            time: true,
+            required: true
+        },
+
         origin: {
-            type: DataTypes.ENUM('manual', 'imported', 'transposed'),
+            type: 'enum',
+            values: ['manual', 'imported', 'transposed'],
             defaultValue: 'transposed',
-            allowNull: false
+            required: true
         },
         status: {
-            type: DataTypes.ENUM('valid', 'invalid', 'canceled', 'unprocessed'),
+            type: 'enum',
+            values: ['valid', 'invalid', 'canceled', 'unprocessed'],
             defaultValue: 'unprocessed',
-            allowNull: false
-
-        }
-    }, {
-        classMethods: {
-            associate: function(models) {
-                TimeEntry.belongsTo(models.ZidecoUser, {
-                    as: 'user',
-                    foreignKey: {
-                        allowNull: false
-                    }
-                });
-            }
+            required: true
         }
     });
 
-    return TimeEntry;
+    var postprocess = function() {
+        var opts = {
+            reverse: 'timeentries',
+            required: true
+        };
+
+        TimeEntry.hasOne('user', models.ZidecoUser, opts);
+    };
+
+
+
+    return postprocess;
 };

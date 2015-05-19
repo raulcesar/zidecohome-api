@@ -1,9 +1,6 @@
-'use strict';
 var moment = require('moment');
-
-
-var createTimeEntries = function(models, user) {
-    var entries = [
+module.exports = 
+    [
         //Lets put in some "invalids"
         // moment('04-05-2015 06:05', 'DD-MM-YYYY HH:mm'), //INVALID(for tests... did not really register this!)
         moment('04-05-2015 08:05', 'DD-MM-YYYY HH:mm'),
@@ -51,72 +48,29 @@ var createTimeEntries = function(models, user) {
         moment('12-05-2015 19:13', 'DD-MM-YYYY HH:mm'),
         moment('12-05-2015 21:01', 'DD-MM-YYYY HH:mm'),
 
-        moment('13-05-2015 08:44', 'DD-MM-YYYY HH:mm')
+        //TODO: Aqui, temos um atestado de comparecimento!!!!!
+        moment('13-05-2015 08:44', 'DD-MM-YYYY HH:mm'),
+        moment('13-05-2015 11:56', 'DD-MM-YYYY HH:mm'),
+        moment('13-05-2015 13:31', 'DD-MM-YYYY HH:mm'),
+        moment('13-05-2015 19:07', 'DD-MM-YYYY HH:mm'),
+        moment('13-05-2015 21:04', 'DD-MM-YYYY HH:mm'),
+
+        moment('14-05-2015 07:55', 'DD-MM-YYYY HH:mm'),
+        moment('14-05-2015 12:48', 'DD-MM-YYYY HH:mm'),
+        moment('14-05-2015 14:18', 'DD-MM-YYYY HH:mm'),
+        moment('14-05-2015 18:58', 'DD-MM-YYYY HH:mm'),
+
+        moment('15-05-2015 08:08', 'DD-MM-YYYY HH:mm'),
+        moment('15-05-2015 11:55', 'DD-MM-YYYY HH:mm'),
+        moment('15-05-2015 13:52', 'DD-MM-YYYY HH:mm'),
+        moment('15-05-2015 17:49', 'DD-MM-YYYY HH:mm'),
+
+        moment('18-05-2015 07:50', 'DD-MM-YYYY HH:mm'),
+        moment('18-05-2015 11:59', 'DD-MM-YYYY HH:mm'),
+        moment('18-05-2015 14:12', 'DD-MM-YYYY HH:mm'),
+        moment('18-05-2015 19:02', 'DD-MM-YYYY HH:mm'),
+
+        moment('19-05-2015 08:24', 'DD-MM-YYYY HH:mm')
+
 
     ];
-
-
-    //NO dia 04-05, deve-se incluir "registros intervencao" às 12:00 e 12:30
-    var manualEntries = [
-        //Lets put in some "invalids"
-        // moment('04-05-2015 06:05', 'DD-MM-YYYY HH:mm'), //INVALID(for tests... did not really register this!)
-        moment('04-05-2015 12:00', 'DD-MM-YYYY HH:mm'),
-        moment('04-05-2015 12:30', 'DD-MM-YYYY HH:mm'),
-    ];
-
-
-    var logCreation = function(entry) {
-        console.log('entry created: ' + entry);
-    };
-
-    var logErrorOnCreation = function(err) {
-        console.log('Deu pau: ' + err);
-    };
-    var insertqtd = 0;
-    var i;
-    var entry;
-    var timeEntry;
-    //Create time entries
-    for (i = 0; i < entries.length; i++) {
-        insertqtd++;
-        entry = entries[i];
-        // models.TimeEntry.create({
-        //     entryTime: entry.toDate(),
-        //     origin: 'MANUAL',
-        //     user: user
-        // }).then(logCreation, logErrorOnCreation);
-        timeEntry = models.TimeEntry.build({
-            entryTime: entry.toDate(),
-            origin: 'transposed'
-        });
-        timeEntry.setUser(user, {
-            save: false
-        });
-        timeEntry.save().then(logCreation, logErrorOnCreation);
-    }
-
-    for (i = 0; i < manualEntries.length; i++) {
-        insertqtd++;
-        entry = manualEntries[i];
-        // models.TimeEntry.create({
-        //     entryTime: entry.toDate(),
-        //     origin: 'MANUAL',
-        //     user: user
-        // }).then(logCreation, logErrorOnCreation);
-        timeEntry = models.TimeEntry.build({
-            entryTime: entry.toDate(),
-            origin: 'manual'
-        });
-        timeEntry.setUser(user, {
-            save: false
-        });
-        timeEntry.save().then(logCreation, logErrorOnCreation);
-    }
-
-    console.log('Entered: ' + insertqtd);
-};
-
-
-module.exports = {
-    run:createTimeEntries
-};

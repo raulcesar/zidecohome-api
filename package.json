@@ -17,7 +17,7 @@
     "express-session": "^1.11.1",
     "formidable": "^1.0.15",
     "knex": "^0.7.3",
-    "lodash": "^2.4.1",
+    "lodash": "^3.8.0",
     "mariasql": "^0.1.21",
     "moment": "^2.10.2",
     "morgan": "~1.0.0",

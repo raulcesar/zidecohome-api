@@ -2,7 +2,7 @@
  * Created by raul on 04/05/2015.
  */
 'use strict';
-var dbUtils = require('../infra/dbUtils');
+var dbUtils = require('../infra/nodeOrm2DbUtils');
 var zidecoUtils = require('../infra/zidecoUtils');
 
 var resourceName = 'Currency';

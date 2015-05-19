@@ -1,12 +1,24 @@
 'use strict';
 var zidecoseq = require('../zidecoseq');
 
-module.exports = function(sequelize, DataTypes) {
-   var ServiceRequest = zidecoseq.define(sequelize, 'ServiceRequest', {
-      serviceCategory: DataTypes.STRING,
-      serviceName: DataTypes.STRING,
-      status: DataTypes.ENUM('pending', 'finished', 'failed')
-   });
+module.exports = function(models) {
+    var ServiceRequest = zidecoseq.define(models, 'ServiceRequest', {
+        serviceCategory: {
+            type: 'text',
+            size: 100
+        },
+        serviceName: {
+            type: 'text',
+            size: 100
+        },
 
-   return ServiceRequest;
+        status: {
+            type: 'enum',
+            values: ['pending', 'finished', 'failed'],
+            defaultValue: 'pending',
+            required: true
+        }
+    });
+
+    return;
 };

@@ -28,7 +28,7 @@ module.exports = function(passport, models) {
 
     // used to deserialize the user
     passport.deserializeUser(function(user, done) {
-        var zidecoUser = models.ZidecoUser.build(user);
+        var zidecoUser = new models.ZidecoUser(user);
         // user = new Usuario(user);
         done(null, zidecoUser);
 
