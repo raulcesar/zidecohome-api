@@ -1,6 +1,7 @@
 'use strict';
 var zidecoseq = require('../zidecoseq');
 
+
 module.exports = function(models) {
     var TimeEntry = zidecoseq.define(models, 'TimeEntry', {
         entryTime: {
@@ -29,7 +30,7 @@ module.exports = function(models) {
             required: true
         };
 
-        TimeEntry.hasOne('user', models.ZidecoUser, {}, opts);
+        TimeEntry.hasOne('user', models.ZidecoUser, opts);
     };
 
 

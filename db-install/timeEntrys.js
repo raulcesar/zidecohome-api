@@ -57,7 +57,20 @@ module.exports =
 
         moment('14-05-2015 07:55', 'DD-MM-YYYY HH:mm'),
         moment('14-05-2015 12:48', 'DD-MM-YYYY HH:mm'),
-        moment('14-05-2015 14:18', 'DD-MM-YYYY HH:mm')
+        moment('14-05-2015 14:18', 'DD-MM-YYYY HH:mm'),
+        moment('14-05-2015 18:58', 'DD-MM-YYYY HH:mm'),
+
+        moment('15-05-2015 08:08', 'DD-MM-YYYY HH:mm'),
+        moment('15-05-2015 11:55', 'DD-MM-YYYY HH:mm'),
+        moment('15-05-2015 13:52', 'DD-MM-YYYY HH:mm'),
+        moment('15-05-2015 17:49', 'DD-MM-YYYY HH:mm'),
+
+        moment('18-05-2015 07:50', 'DD-MM-YYYY HH:mm'),
+        moment('18-05-2015 11:59', 'DD-MM-YYYY HH:mm'),
+        moment('18-05-2015 14:12', 'DD-MM-YYYY HH:mm'),
+        moment('18-05-2015 19:02', 'DD-MM-YYYY HH:mm'),
+
+        moment('19-05-2015 08:24', 'DD-MM-YYYY HH:mm')
 
 
     ];

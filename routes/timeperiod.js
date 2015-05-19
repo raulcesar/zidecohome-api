@@ -2,7 +2,7 @@
  * Created by raul on 07/05/2015.
  */
 'use strict';
-var dbUtils = require('../infra/dbUtils');
+var dbUtils = require('../infra/nodeOrm2DbUtils');
 var moment = require('moment');
 var _ = require('lodash');
 

@@ -26,7 +26,7 @@ models(conf, function(m) {
 
 // select * from "ZidecoUser"
 // select * from "AuthorizedSchedule"
-// select * from "userXauthorizedSchedule"
+//   select * from "userXauthorizedSchedule"
 
 
 

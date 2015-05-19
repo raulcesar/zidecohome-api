@@ -10,11 +10,12 @@ module.exports = function(models) {
     });
 
     var opts = {
-        reverse: 'aliases'
+        reverse: 'aliases',
+        autoFetch: true
     };
     // ZidecoUserAlias.hasOne('user', models.ZidecoUser, {}, opts);
     var postprocess = function() {
-    	ZidecoUserAlias.hasOne('user', models.ZidecoUser, {}, opts);
+    	ZidecoUserAlias.hasOne('user', models.ZidecoUser, opts);
     };
 
     return postprocess;

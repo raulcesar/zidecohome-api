@@ -2,46 +2,40 @@
  * Created by raul on 04/05/2015.
  */
 'use strict';
-var dbUtils = require('../infra/dbUtils');
-var moment = require('moment');
-var _ = require('lodash');
+var dbUtils = require('../infra/nodeOrm2DbUtils');
+
 
 var resourceName = 'TimeEntry';
 
 function handleGet(req, res) {
-    var queryOptions;
+    var orm = req.ormmodels.orm;
     var filtro = req.query;
-    var entryTime = {};
 
     //Get the current user and include id in where clause.
-    var whereClause = req.app.get('zUtils').getUserIdWhereObject(req);
+    var whereClause = req.app.get('zUtils').getOrm2UserIdFindFilter(req);
     if (!whereClause) {
         res.sendStatus(500);
         return;
     }
 
     if (filtro.start) {
-        //Should we parse KNOWN format???
-        // startDate = moment(filtro.start).toDate();
-        entryTime.gte = moment(filtro.start).toDate();
-        whereClause.entryTime = entryTime;
+        whereClause.and = whereClause.and || [];
+        whereClause.and.push({
+            entryTime: orm.gte(filtro.start)
+        });
     }
     if (filtro.end) {
-        entryTime.lt = moment(filtro.end).toDate();
-        whereClause.entryTime = entryTime;
-    }
-
-    if (!_.isEmpty(whereClause)) {
-        queryOptions = {
-            where: whereClause
-        };
+        whereClause.and = whereClause.and || [];
+        whereClause.and.push({
+            entryTime: orm.lt(filtro.end)
+        });
     }
 
     dbUtils.standardGetHandler({
-        resourceName: resourceName,
-        queryOptions: queryOptions
+       resourceName: resourceName,
+       filterObject: whereClause,
+       findOptions: {}
     }, req, res);
-
 }
 
 function handleFind(req, res) {

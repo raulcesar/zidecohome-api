@@ -1,46 +1,41 @@
 'use strict';
 var _ = require('lodash');
+var fs = require('fs');
+var orm = require('../submodules/orm/lib/ORM');
 
 module.exports = function(conf, cb) {
 
-    var fs = require('fs');
-    var path = require('path');
-    // var Sequelize = require('sequelize');
-    // var Sequelize = require('../submodules/sequelize');
-    var orm = require('../submodules/orm/lib/ORM');
+    var defineModel = function(models) {
+        var nonModelFiles = ['index.js'];
+        console.log('connected');
+
+        var postprocesss = [];
+        //Read all models from current directory, filtering current file (of course)
+        fs
+            .readdirSync(__dirname)
+            .filter(function(file) {
+                // return (file.indexOf('.') !== 0) && (file !== 'index.js') && (file !== 'ConstantEnums.js');
+                return (file.indexOf('.') !== 0) && nonModelFiles.indexOf(file) < 0;
+            })
+            .forEach(function(file) {
+                var retfunc = require('./' + file)(models);
+                if (_.isFunction(retfunc)) {
+                    postprocesss.push(require('./' + file)(models));
+                }
+
+                console.log('file: ' + file);
+            });
 
 
+        postprocesss.forEach(function(func) {
+            func();
+        });
+        return models;
+    };
 
+    // var type = conf.type || 'standalone';
 
-    // var options = {
-    //     host: conf.db.postgres.host,
-    //     port: conf.db.postgres.port,
-    //     dialect: 'postgres',
-    //     // logging: false,
-    //     logging: function(str) {
-    //         console.log(str);
-
-    //     },
-    //     define: {
-    //         freezeTableName: true,
-
-
-    //         // underscored: false,
-    //         // freezeTableName: false,
-    //         // syncOnAssociation: true,
-    //         // charset: 'utf8',
-    //         // collate: 'utf8_general_ci',
-    //         // classMethods: {method1: function() {}},
-    //         // instanceMethods: {method2: function() {}},
-    //         timestamps: true
-    //     },
-    //     // quoteIdentifiers: false,
-    //     pool: {
-    //         maxConnections: 10,
-    //         maxIdleTime: 30
-    //     }
-    // };
-
+    // if (type === 'standalone') {
     var opts = {
         host: conf.db.postgres.host,
         database: conf.db.postgres.database,
@@ -56,52 +51,20 @@ module.exports = function(conf, cb) {
     };
 
     orm.connect(opts, function(err, db) {
-        // var validFiles = ['ZidecoUser.js', 'TimeEntry.js', 'ZidecoUserAlias.js', 'UserRole.js', 'TimeEntryPeriod.js', 'AuthorizedSchedule.js', 'ServiceRequest.js' ];
-        var nonModelFiles = ['index.js'];
-        console.log('connected');
-
-
-
+        //Caching with my new "assocs on find" mecanism does not work very well.
+        db.settings.set('instance.cache', false);
         var models = {
-            db:db
+            orm: orm,
+            db: db
         };
-        var postprocesss = [];
-        //Read all models from current directory, filtering current file (of course)
-        fs
-            .readdirSync(__dirname)
-            .filter(function(file) {
-                // return (file.indexOf('.') !== 0) && (file !== 'index.js') && (file !== 'ConstantEnums.js');
-                return (file.indexOf('.') !== 0) && nonModelFiles.indexOf(file) < 0;
-            })
-            .forEach(function(file) {
-                var retfunc = require('./' + file)(models);
-                if (_.isFunction(retfunc)) {
-                    postprocesss.push(require('./' + file)(models));
-                }
-                
-                // models[model.name] = model;
-                console.log('file: ' + file);
-            });
 
-
-        postprocesss.forEach(function(func) {
-            func();
-        });
-
-
-
-        // Object.keys(models).forEach(function(modelName) {
-        //     if ('associate' in models[modelName]) {
-        //         models[modelName].associate(models);
-        //     }
-        // });
-
-        // models.sequelize = sequelize;
-        // models.Sequelize = Sequelize;
-        // models.db = db;
-
-        cb( models);
+        defineModel(models);
+        cb(models);
     });
-    
+    // } else {
+    //     return defineModel(conf.models);
+    // }
+
+
 
 };

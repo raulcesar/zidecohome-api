@@ -129,7 +129,7 @@ Strategy.prototype.codeValidate = function(code, model, callback) {
     };
 
 
-  
+
 
 
 
@@ -219,21 +219,6 @@ Strategy.prototype.codeValidate = function(code, model, callback) {
                     // };
 
 
-                    //Validate that user is a valid "zideco user" and complement user data from our stores.
-                    var queryOptions = {
-                        where: {
-                            identifier: body.email
-                        }
-                        // include: [{
-                        //     model: model.UserRole,
-                        //     as: 'roles'
-                        // },
-                        // {
-                        //     model: model.ZidecoUserAlias,
-                        //     as: 'aliases'
-                        // }
-                        // ]
-                    };
 
                     var treatModelError = function(err) {
                         msg = 'Error when checking zideco bases for user: ' + err;
@@ -242,8 +227,30 @@ Strategy.prototype.codeValidate = function(code, model, callback) {
                         return;
                     };
 
+
+                    //Validate that user is a valid "zideco user" and complement user data from our stores.
+                    var findOptions = {
+                        identifier: body.email
+                            // ,
+                            // autoFetchNames: ['roles']
+                    };
+
                     //We are only going to check in the ALIASES, because even default identifier stays in alias.
-                    model.ZidecoUserAlias.find(queryOptions).then(function(userAlias) {
+                    model.ZidecoUserAlias.one({
+                        identifier: 'raul@zideco.org'
+                    }, {
+                        // autoFetch: true,
+                        // autoFetchNames: ['user']
+                    }, function(err, user) {
+                        console.log('user: ' + JSON.stringify(user));
+                    });
+
+                    //Find one alias.
+                    model.ZidecoUserAlias.one(findOptions, function(err, userAlias) {
+                        if (err) {
+                            treatModelError(err);
+                            return;
+                        }
                         if (_.isEmpty(userAlias)) {
                             msg = 'User ' + body.email + 'is not a valid ziedeco user';
                             console.log(msg);
@@ -251,21 +258,40 @@ Strategy.prototype.codeValidate = function(code, model, callback) {
                             return;
                         }
 
+                        //Check that user is valid.
+                        if (!userAlias.user.isValid()) {
+                            msg = 'User ' + body.email + 'is not valid!';
+                            console.log(msg);
+                            callback(new Error(msg));
+                            return;
+                        }
+
+
+
                         //TODO: Check other stuff here.
-                        userAlias.getUser().then(function(zidecoUser) {
-                            //Finaly callback with valid user.
-                            zidecoUser.isValid();
-                            callback(null, zidecoUser, body);
-                        }, treatModelError);
 
-                        
+                        //All checks passed. Return valid user in all his glory!
+                        model.ZidecoUser.one({
+                            id: userAlias.user.id
+                        }, {
+                            autoFetchNames: ['roles', 'aliases']
+                        }, function(err, user) {
+                            if (err) {
+                                treatModelError(err);
+                                return;
+                            }
 
-                        // res.send(objects);
-                    }, treatModelError);
+                            callback(null, user, body);
+                        });
 
 
 
-                    
+
+                    });
+
+
+
+
                 });
 
 

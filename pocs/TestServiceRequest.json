@@ -1,7 +1,7 @@
 {
     "serviceCategory": "TimeEntryServices",
     "serviceName": "processTimeEntriesClean",
-    "parameters": {
+    "serviceParameters": {
         "userId": "2",
         "startDate": "2015-05-01",
         "endDate": "2015-06-01"
