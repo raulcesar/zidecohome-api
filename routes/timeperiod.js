@@ -3,46 +3,40 @@
  */
 'use strict';
 var dbUtils = require('../infra/nodeOrm2DbUtils');
-var moment = require('moment');
-var _ = require('lodash');
+// var moment = require('moment');
 
 var resourceName = 'TimeEntryPeriod';
 
 function handleGet(req, res) {
-    var queryOptions;
     var filtro = req.query;
-    var dayReference = {};
+    var orm = req.ormmodels.orm;
 
     //Get the current user and include id in where clause.
-    var whereClause = req.app.get('zUtils').getUserIdWhereObject(req);
+    var whereClause = req.app.get('zUtils').getOrm2UserIdFindFilter(req);
     if (!whereClause) {
         res.sendStatus(500);
         return;
     }
 
     if (filtro.start) {
-        //Should we parse KNOWN format???
-        // startDate = moment(filtro.start).toDate();
-        dayReference.gte = moment(filtro.start).toDate();
-        whereClause.dayReference = dayReference;
+        whereClause.and = whereClause.and || [];
+        whereClause.and.push({
+            dayReference: orm.gte(filtro.start)
+        });
     }
     if (filtro.end) {
-        dayReference.lt = moment(filtro.end).toDate();
-        whereClause.dayReference = dayReference;
-    }
-
-
-
-    if (!_.isEmpty(whereClause)) {
-        queryOptions = {
-            where: whereClause
-        };
+        whereClause.and = whereClause.and || [];
+        whereClause.and.push({
+            dayReference: orm.lt(filtro.end)
+        });
     }
 
     dbUtils.standardGetHandler({
-        resourceName: resourceName,
-        queryOptions: queryOptions
+       resourceName: resourceName,
+       filterObject: whereClause,
+       findOptions: {}
     }, req, res);
+
 
 }
 

@@ -80,6 +80,7 @@ conf.defaults = {
     public: [
         'simpleroute',
         'currency',
+        'scrape',
         
         'zidecouser', {
             resourceName: 'servicerequest',
