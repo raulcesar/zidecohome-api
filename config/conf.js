@@ -52,6 +52,10 @@ conf.defaults = {
     authenticationscope: 'openid%20email&',
     callbackroute: '/auth/google/return/',
     approvalPrompt: 'auto'
+  },
+  camaranettimeentries: {
+    loginUrl: 'https://prod2.camara.gov.br/SigespNet/Autenticacao/validarLogonEfetuarLogon.do',
+    entrySearchUrl: 'https://prod2.camara.gov.br/SigespNet/SigespNetUsuario/dadosRegistroEletronicoEfetuarConsulta.do'
   }
 
 

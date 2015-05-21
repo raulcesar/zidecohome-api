@@ -3,17 +3,19 @@
  */
 'use strict';
 var dbUtils = require('../infra/nodeOrm2DbUtils');
-var moment = require('moment');
-var _ = require('lodash');
-var zidecoUtils = require('../infra/zidecoUtils');
+// var moment = require('moment');
+// var _ = require('lodash');
+// var zidecoUtils = require('../infra/zidecoUtils');
 
 var resourceName = 'ServiceRequest';
 
 
 var TimeEntryServices = require('../services/TimeEntryService');
+var TimeEntryScrapingServices = require('../services/TimeEntryScrapingService');
 
 var ServicesByCategories = {
-    TimeEntryServices: TimeEntryServices
+    TimeEntryServices: TimeEntryServices,
+    TimeEntryScrapingServices: TimeEntryScrapingServices
 };
 
 function handleGet(req, res) {
@@ -46,7 +48,7 @@ function handleIns(req, res) {
     //     console.log('aqui');
     // });
 
-
+    serviceParameters.appconfig = req.app.get('conf');
 
     req.ormmodels.ServiceRequest.create(recievedObject, function(err, savedObject) {
         service(req.ormmodels, savedObject, serviceParameters).then(function(ret) {
