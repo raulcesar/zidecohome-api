@@ -4,7 +4,6 @@ var request = require('request').defaults({
 });
 var cheerio = require('cheerio');
 var moment = require('moment');
-var _ = require('lodash');
 var Q = require('q');
 var PhaseController = require('../infra/PhaseController');
 
@@ -81,15 +80,17 @@ var processdata = function(userId, day, data) {
 
 
 
-var scrapeTimeEntries = function(models, userId, username, password, startDate, endDate) {
+var scrapeTimeEntries = function(appconfig, models, userId, username, password, startDate, endDate) {
 
     deferredScrapeEntries = Q.defer();
     startDate = moment(startDate);
     endDate = moment(endDate);
 
     //Try to post login and recieve cookie...
-    var loginUrl = 'https://prod2.camara.gov.br/SigespNet/Autenticacao/validarLogonEfetuarLogon.do';
-    var pesqRegUrl = 'https://prod2.camara.gov.br/SigespNet/SigespNetUsuario/dadosRegistroEletronicoEfetuarConsulta.do';
+    // var loginUrl = 'https://prod2.camara.gov.br/SigespNet/Autenticacao/validarLogonEfetuarLogon.do';
+    // var entrySearchUrl = 'https://prod2.camara.gov.br/SigespNet/SigespNetUsuario/dadosRegistroEletronicoEfetuarConsulta.do';
+    var loginUrl = appconfig.camaranettimeentries.loginUrl;
+    var entrySearchUrl = appconfig.camaranettimeentries.entrySearchUrl;
 
     //Find how many days we want to scrape.
     var days = endDate.diff(startDate, 'days');
@@ -140,7 +141,7 @@ var scrapeTimeEntries = function(models, userId, username, password, startDate, 
             //Because moment "add" will change the state of our startDate, and the request post callback will be called latter,
             //We will create a new object here to mantain the iteration startDate.
             var currentIterationMoment = moment(startDate);
-            request.post(pesqRegUrl, {
+            request.post(entrySearchUrl, {
                 form: dateSubmissionForm
             }, processReturnData(currentIterationMoment));
 
@@ -202,7 +203,7 @@ var scrapeTimeEntriesClean = function(models, serviceRequestObject, parameters) 
         return deferred.promise;
     }
 
-    return scrapeTimeEntries(models, parameters.userId, parameters.username, parameters.password, parameters.startDate, parameters.endDate)
+    return scrapeTimeEntries(parameters.appconfig, models, parameters.userId, parameters.username, parameters.password, parameters.startDate, parameters.endDate)
         .then(function(resolveObject) {
             //Scraped all timeEntries. Now we can persist them
             //Delete, then save, then finish by updating servicerequest.

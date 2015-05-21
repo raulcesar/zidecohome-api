@@ -48,7 +48,7 @@ function handleIns(req, res) {
     //     console.log('aqui');
     // });
 
-
+    serviceParameters.appconfig = req.app.get('conf');
 
     req.ormmodels.ServiceRequest.create(recievedObject, function(err, savedObject) {
         service(req.ormmodels, savedObject, serviceParameters).then(function(ret) {
