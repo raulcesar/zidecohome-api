@@ -12,6 +12,11 @@ module.exports = function(models) {
             size: 100
         },
 
+        observation: {
+            type: 'text',
+            size: 4000
+        },
+
         status: {
             type: 'enum',
             values: ['pending', 'finished', 'failed'],

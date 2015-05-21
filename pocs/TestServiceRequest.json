@@ -7,3 +7,15 @@
         "endDate": "2015-06-01"
     }
 }
+
+{
+    "serviceCategory": "TimeEntryScrapingServices",
+    "serviceName": "scrapeTimeEntriesClean",
+    "serviceParameters": {
+        "userId": "2",
+        "username": "2",
+        "password": "",
+        "startDate": "2015-05-04",
+        "endDate": "2015-05-15"
+    }
+}

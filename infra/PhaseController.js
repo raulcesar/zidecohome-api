@@ -6,43 +6,43 @@
 var _ = require('lodash');
 
 function PhaseController(phases) {
-    this.phases = {};
-    if (phases) {
-        if (_.isArray(phases)) {
-            for (var i = 0; i < phases.length; i++) {
-                var etapaName;
-                if (_.isString(phases[i])) {
-                 etapaName = phases[i];
-                } else {
-                    etapaName = phases[i].nome;
-                }
-                
-                //Must be string.
-                var etapa = {concluida: false};
-                this.phases[etapaName] = etapa;
-            }
+    this.phasecontrolIsCounter = false;
+    this.fasesComplete = 0;
 
-
-        } else {
-            this.phases = phases;
-        }
-
+    if (_.isArray(phases)) {
+        this.phases = _.zipObject(phases, _.fill(_.clone(phases), false));
+        this.totalPhases = phases.length;
+    } else if (_.isNumber(phases)) {
+        this.phasecontrolIsCounter = true;
+        this.totalPhases = phases;
+        this.phases = {};
+    } else {
+        //If we send in a number, than the "phases" themselves do not matter. Instead we just have a counter.
+        this.phases = phases || {};
+        this.totalPhases = _.size(phases);
     }
 }
 
 PhaseController.prototype = {
     allPhasesDone: function(cbOrObjectOnEndAllPhases) {
 
-        for (var key in this.phases) {
-            
-            // check also if property is not inherited from prototype
-            if (this.phases.hasOwnProperty(key)) {
-                var value = this.phases[key].concluida;
-                if (value === false) {
-                    return false;
+        if (this.phasecontrolIsCounter === true) {
+            //If the phasecontroller is based on counter, no need to check every key... just compare fasesComplete to total phases
+            if (this.fasesComplete < this.totalPhases) {
+                return false;
+            }
+        } else {
+            for (var key in this.phases) {
+                // check also if property is not inherited from prototype
+                if (this.phases.hasOwnProperty(key)) {
+                    var value = this.phases[key].concluida;
+                    if (value === false) {
+                        return false;
+                    }
                 }
             }
         }
+        
         if (cbOrObjectOnEndAllPhases) {
             if (_.isFunction(cbOrObjectOnEndAllPhases)) {
                 cbOrObjectOnEndAllPhases();
@@ -54,7 +54,11 @@ PhaseController.prototype = {
     },
 
     endPhase: function(phaseName, cbOrObjectOnEndAllPhases) {
-        this.phases[phaseName].concluida = true;
+        this.fasesComplete ++;
+        if (this.phases[phaseName]) {
+            this.phases[phaseName].concluida = true;
+        }
+        
         return this.allPhasesDone(cbOrObjectOnEndAllPhases);
     }
 

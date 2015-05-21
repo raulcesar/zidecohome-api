@@ -249,15 +249,25 @@ var processTimeEntries = function(models, userId, argStartDate, argEndDate, opti
 
 
 var processTimeEntriesClean = function(models, serviceRequestObject, parameters) {
+    var deferred = Q.defer();
+
     //Run stuff. When finished, save new satus for serviceRequestObject
     console.log('Will run processTimeEntriesClean for period: ' + parameters.startDate + ' to ' + parameters.endDate);
     //The service for timeentry processing should, at the least, have the userId parameter
     if (!parameters || !parameters.userId) {
         console.log('processTimeEntriesClean failed due to lack of userId param');
         serviceRequestObject.status = 'failed';
-        return serviceRequestObject.save(function(err, o) {
+
+        serviceRequestObject.save(function(err, o) {
+            if (err) {
+                deferred.reject(err);
+                return;
+            }
+            deferred.resolve(o);
             console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
         });
+
+        return deferred.promise;
     }
 
     //Everything is processed for a single user, so we start with him:
