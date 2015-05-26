@@ -222,6 +222,7 @@ var processTimeEntries = function(models, userId, argStartDate, argEndDate, opti
             .then(function(periods) {
                 generatedPeriods = periods;
                 if (options.deleteEntriesForPeriod) {
+                    //First stage, just return the promise...
                     return deleteCurrentEntries(models, userId, startDate, endDate);
                 }
 
@@ -230,9 +231,11 @@ var processTimeEntries = function(models, userId, argStartDate, argEndDate, opti
                 return dbDefered.promise;
             })
             .then(function() {
-
+                //Second stage we have to resolve the outer promise
                 if (options.saveGeneratedEntries) {
-                    return persistNewEntries(models, generatedPeriods);
+                    return persistNewEntries(models, generatedPeriods).then(function(data) {
+                        deferred.resolve(data);
+                    });
                 }
                 var dbDefered = Q.defer();
                 deferred.resolve(generatedPeriods);
@@ -278,10 +281,14 @@ var processTimeEntriesClean = function(models, serviceRequestObject, parameters)
     //Everything is processed for a single user, so we start with him:
     //TODO: disabilita para testes.
     return processTimeEntries(models, userId, parameters.startDate, parameters.endDate).then(function() {
+        var deferred = Q.defer();
         serviceRequestObject.status = 'finished';
         serviceRequestObject.save(function(err, o) {
+            deferred.resolve(o);
             return o;
+
         });
+        return deferred.promise;
     });
 };
 
