@@ -71,25 +71,23 @@ exports.setup = function setup(app, conf, passport) {
 
 
 
-    //Permite CORS (development only)
+    //Allows CORS (development only)
     //  app.configure('development')
     //  if (app.settings.env == conf.validEnvs.dev) {
     app.use(require('./corsmiddleware')()); //log
     //  }
 
-    //Inclui um middleware para tratar para... eu acho que mysql e cache... por hora não vamos usar cache, entao comentei o cache e store...
-    //  app.use(function (req, res, next) {
-    //    req.mysql = pool;
-    ////    req.cache   = require('memoizee');
-    ////    req.store   = app.locals;
-    //    next();
-    //  });
 
-
-    //Setup sequelize middleware
+    //Setup ORM middleware
     // var models = require('../models')(conf);
     app.use(function(req, res, next) {
         req.ormmodels = app.get('ormmodels');
+        next();
+    });
+
+    //Inject io server into req
+    app.use(function(req, res, next) {
+        req.io = conf.io;
         next();
     });
 

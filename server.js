@@ -73,11 +73,13 @@ models(conf, function(m) {
     var http = require('http');
     var server = http.createServer(app);
 
+
     //Configure connect 'middleware' (session, etc.)
     middleware.setup(app, conf, passport);
 
     //configure and run socket.io server
-    // iosocketserver.setup(conf, server);
+    iosocketserver.setup(conf, server);
+
 
     //Configure routes
     router.run(app, conf, passport);

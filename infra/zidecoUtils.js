@@ -29,9 +29,9 @@ var getOrm2UserIdFindFilter = function(req, operation) {
     var userId = filtro.userId || usu.id;
 
 
-    var conditions = {
+    var conditions = userId ? {
         user_id: userId
-    };
+    } : undefined;
     return conditions;
 };
 

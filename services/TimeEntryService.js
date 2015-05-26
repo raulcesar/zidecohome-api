@@ -119,8 +119,8 @@ var generateEntryPeriodsSync = function(userId, entries) {
                 dayReference: dayReference.toDate(),
 
                 user_id: userId,
-                startEntryId: startEntryId,
-                endEntryId: endEntryId
+                startentry_id: startEntryId,
+                endentry_id: endEntryId
 
             };
             calculateminutes(period);
@@ -254,7 +254,12 @@ var processTimeEntriesClean = function(models, serviceRequestObject, parameters)
     //Run stuff. When finished, save new satus for serviceRequestObject
     console.log('Will run processTimeEntriesClean for period: ' + parameters.startDate + ' to ' + parameters.endDate);
     //The service for timeentry processing should, at the least, have the userId parameter
-    if (!parameters || !parameters.userId) {
+    var userId;
+    if (parameters && !parameters.userId && parameters.req && parameters.req.user) {
+        userId = parameters.req.user.id;
+    }
+
+    if (!userId) {
         console.log('processTimeEntriesClean failed due to lack of userId param');
         serviceRequestObject.status = 'failed';
 
@@ -272,10 +277,10 @@ var processTimeEntriesClean = function(models, serviceRequestObject, parameters)
 
     //Everything is processed for a single user, so we start with him:
     //TODO: disabilita para testes.
-    return processTimeEntries(models, parameters.userId, parameters.startDate, parameters.endDate).then(function() {
+    return processTimeEntries(models, userId, parameters.startDate, parameters.endDate).then(function() {
         serviceRequestObject.status = 'finished';
         serviceRequestObject.save(function(err, o) {
-            console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
+            return o;
         });
     });
 };

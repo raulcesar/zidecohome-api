@@ -3,9 +3,11 @@
  */
 'use strict';
 var dbUtils = require('../infra/nodeOrm2DbUtils');
+var eventosio = require('../infra/eventosIoSocket');
 // var moment = require('moment');
 // var _ = require('lodash');
 // var zidecoUtils = require('../infra/zidecoUtils');
+
 
 var resourceName = 'ServiceRequest';
 
@@ -41,19 +43,25 @@ function handleIns(req, res) {
     recievedObject.status = 'pending';
     //Save service request in DB and call the actual service method.
 
-    // m.ZidecoUser.create({
-    //     identifier: 'raul@zideco.org',
-    //     disabled: false
-    // }, function(err, raulUser) {
-    //     console.log('aqui');
-    // });
-
     serviceParameters.appconfig = req.app.get('conf');
+    serviceParameters.req = req;
+
 
     req.ormmodels.ServiceRequest.create(recievedObject, function(err, savedObject) {
-        service(req.ormmodels, savedObject, serviceParameters).then(function(ret) {
+        service(req.ormmodels, savedObject, serviceParameters).then(function(finishedServiceObj) {
+            var io = req.io;
+            var messageObj = {
+                serviceRequestObj: finishedServiceObj
+            };
+
+            if (!io) {
+                console.log('No io to send message... but service request finished: ' + messageObj );
+                return;
+            }
+            console.log('Going to try to send message via IO: ' + messageObj );
+
             //Call io to send socket message.
-            console.log('Will eventually Call io to send socket message. ret: ' + ret);
+            io.sockets.emit(eventosio.zEvtServiceRequestDone, messageObj);
         });
         res.send(savedObject);
     });
