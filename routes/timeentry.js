@@ -3,8 +3,6 @@
  */
 'use strict';
 var dbUtils = require('../infra/nodeOrm2DbUtils');
-
-
 var resourceName = 'TimeEntry';
 
 function handleGet(req, res) {
@@ -12,29 +10,30 @@ function handleGet(req, res) {
     var filtro = req.query;
 
     //Get the current user and include id in where clause.
-    var whereClause = req.app.get('zUtils').getOrm2UserIdFindFilter(req);
-    if (!whereClause) {
+    var query = req.app.get('zUtils').getOrm2UserIdFindFilter(req);
+    if (!query) {
         res.sendStatus(500);
         return;
     }
 
     if (filtro.start) {
-        whereClause.and = whereClause.and || [];
-        whereClause.and.push({
+        query.and = query.and || [];
+        query.and.push({
             entryTime: orm.gte(filtro.start)
         });
     }
     if (filtro.end) {
-        whereClause.and = whereClause.and || [];
-        whereClause.and.push({
+        query.and = query.and || [];
+        query.and.push({
             entryTime: orm.lt(filtro.end)
         });
     }
 
+
     dbUtils.standardGetHandler({
-       resourceName: resourceName,
-       filterObject: whereClause,
-       findOptions: {}
+        resourceName: resourceName,
+        filterObject: query,
+        findOptions: {}
     }, req, res);
 }
 

@@ -119,8 +119,8 @@ var generateEntryPeriodsSync = function(userId, entries) {
                 dayReference: dayReference.toDate(),
 
                 user_id: userId,
-                startEntryId: startEntryId,
-                endEntryId: endEntryId
+                startentry_id: startEntryId,
+                endentry_id: endEntryId
 
             };
             calculateminutes(period);
@@ -222,6 +222,7 @@ var processTimeEntries = function(models, userId, argStartDate, argEndDate, opti
             .then(function(periods) {
                 generatedPeriods = periods;
                 if (options.deleteEntriesForPeriod) {
+                    //First stage, just return the promise...
                     return deleteCurrentEntries(models, userId, startDate, endDate);
                 }
 
@@ -230,9 +231,11 @@ var processTimeEntries = function(models, userId, argStartDate, argEndDate, opti
                 return dbDefered.promise;
             })
             .then(function() {
-
+                //Second stage we have to resolve the outer promise
                 if (options.saveGeneratedEntries) {
-                    return persistNewEntries(models, generatedPeriods);
+                    return persistNewEntries(models, generatedPeriods).then(function(data) {
+                        deferred.resolve(data);
+                    });
                 }
                 var dbDefered = Q.defer();
                 deferred.resolve(generatedPeriods);
@@ -254,7 +257,12 @@ var processTimeEntriesClean = function(models, serviceRequestObject, parameters)
     //Run stuff. When finished, save new satus for serviceRequestObject
     console.log('Will run processTimeEntriesClean for period: ' + parameters.startDate + ' to ' + parameters.endDate);
     //The service for timeentry processing should, at the least, have the userId parameter
-    if (!parameters || !parameters.userId) {
+    var userId;
+    if (parameters && !parameters.userId && parameters.req && parameters.req.user) {
+        userId = parameters.req.user.id;
+    }
+
+    if (!userId) {
         console.log('processTimeEntriesClean failed due to lack of userId param');
         serviceRequestObject.status = 'failed';
 
@@ -272,11 +280,15 @@ var processTimeEntriesClean = function(models, serviceRequestObject, parameters)
 
     //Everything is processed for a single user, so we start with him:
     //TODO: disabilita para testes.
-    return processTimeEntries(models, parameters.userId, parameters.startDate, parameters.endDate).then(function() {
+    return processTimeEntries(models, userId, parameters.startDate, parameters.endDate).then(function() {
+        var deferred = Q.defer();
         serviceRequestObject.status = 'finished';
         serviceRequestObject.save(function(err, o) {
-            console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
+            deferred.resolve(o);
+            return o;
+
         });
+        return deferred.promise;
     });
 };
 

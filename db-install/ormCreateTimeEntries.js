@@ -13,6 +13,10 @@ var doNothingCB = function(err) {
 var createTimeEntries = function(m, user) {
     var entries = require('./timeEntrys.js');
 
+    //Doing scrape...
+    console.log('entries that we should get from scraping: ' + entries.length);
+    // entries = [];
+
 
     //NO dia 04-05, deve-se incluir "registros intervencao" às 12:00 e 12:30
     var manualEntries = [

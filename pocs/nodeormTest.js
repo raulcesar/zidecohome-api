@@ -47,7 +47,7 @@ models(conf, function(m) {
 
 
     var startDate = moment('01/05/2015', 'DD/MM/YYYY').toDate();
-    var endDate = moment('05/05/2015', 'DD/MM/YYYY').toDate();
+    var endDate = moment('10/05/2015', 'DD/MM/YYYY').toDate();
 
 
     var startTime = moment('01/05/2015 10:00', 'DD/MM/YYYY HH:mm');
@@ -59,33 +59,77 @@ models(conf, function(m) {
         dayReference: startDate,
         user_id: 2
     };
+    var orm = m.orm;
 
     // var periodos = [];
     // periodos[10] = '';
 
 
     // var periodos = _.fill(new Array(10), _.clone(period));
-    var periodos = [{
-        startTime: startTime.toDate(),
-        endTime: endTime.toDate(),
-        dayReference: startDate,
-        user_id: 2
-    }, {
-        startTime: startTime.toDate(),
-        endTime: endTime.toDate(),
-        dayReference: startDate,
-        user_id: 2
-    }];
+    //     var periodos = [{
+    //         startTime: startTime.toDate(),
+    //         endTime: endTime.toDate(),
+    //         dayReference: startDate,
+    //         user_id: 2
+    //     }, {
+    //         startTime: startTime.toDate(),
+    //         endTime: endTime.toDate(),
+    //         dayReference: startDate,
+    //         user_id: 2
+    //     }];
 
-// .create(newRecord
+    // // .create(newRecord
 
-    m.TimeEntryPeriod.create(periodos, function(err, data) {
+    //     m.TimeEntryPeriod.create(periodos, function(err, data) {
 
-        console.log('err: ' + err);
+    //         console.log('err: ' + err);
 
+    //     });
+
+    //select * from "TimeEntry";
+    // var validOrigins = ['manual', 'imported', 'transposed', 'scraped'];
+    // var excludedOrigins = ['manual', 'imported'];
+    // var pars = ['unprocessed', 2, startDate, endDate];
+    // var originSQL;
+    // var originsPars = [];
+
+    // _.each(excludedOrigins, function(origin) {
+    //     if (validOrigins.indexOf(origin) >= 0) {
+    //         originsPars.push('\'' + origin + '\'');
+    //     }
+    // });
+    // if (!_.isEmpty(originsPars)) {
+    //     originSQL = ' and origin not in (' + originsPars.join(', ') + ')';
+    // }
+
+    // var sql = 'delete from "' + m.TimeEntry.table + '" where "status" = ? and "user_id" = ? and "entryTime" >= ? and "entryTime" < ? ';
+    // sql += originSQL;
+    // m.db.driver.execQuery(sql, pars, function(err, data) {
+    //     console.log('err: ' + err);
+    // });
+
+    m.TimeEntry.getLastScrapedEntry(2).then(function(maxdata) {
+        console.log('max  (with number): ' + moment(maxdata).format('DD/MM/YYYY HH:mm'));
     });
 
+    m.TimeEntry.getLastScrapedEntry({
+        user_id: 2
+    }).then(function(maxdata) {
+        console.log('max: (with object)' + moment(maxdata).format('DD/MM/YYYY HH:mm'));
+    });
 
+    var query = {
+        user_id: 2,
+        and: [{
+                entryTime: orm.gte(startDate)
+            }, {
+                entryTime: orm.lt(endDate)
+            }
+        ]
+    };
+    m.TimeEntry.getLastScrapedEntry(query).then(function(maxdata) {
+        console.log('max: (with complex object)' + moment(maxdata).format('DD/MM/YYYY HH:mm'));
+    });
 
     // console.log(m.TimeEntry.table);
 

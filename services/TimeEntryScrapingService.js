@@ -156,7 +156,8 @@ var scrapeTimeEntries = function(appconfig, models, userId, username, password, 
 
 //Persistance functions
 var deleteCurrentEntries = function(models, userId, startDate, endDate) {
-    return models.TimeEntry.deleteUserEntriesOnPeriod(userId, startDate, endDate);
+    var excludedOrigins = ['manual'];
+    return models.TimeEntry.deleteUserEntriesOnPeriod(userId, startDate, endDate, excludedOrigins);
 };
 
 
@@ -187,8 +188,15 @@ var scrapeTimeEntriesClean = function(models, serviceRequestObject, parameters) 
     //Run stuff. When finished, save new satus for serviceRequestObject
     var deferred = Q.defer();
     console.log('Will run scrapeTimeEntriesClean for period: ' + parameters.startDate + ' to ' + parameters.endDate);
+    //If we did not recieve userId, than get it from request.
+    var userId;
+    if (parameters && !parameters.userId && parameters.req && parameters.req.user) {
+        userId = parameters.req.user.id;
+    }
+
+
     //The service for timeentry processing should, at the least, have a username and password that we will need to authenticate before scraping.
-    if (!parameters || !parameters.userId || !parameters.username || !parameters.password) {
+    if (!parameters || !userId || !parameters.username || !parameters.password) {
         console.log('scrapeTimeEntriesClean failed due to lack of required parameters');
         serviceRequestObject.status = 'failed';
         serviceRequestObject.save(function(err, o) {
@@ -203,21 +211,26 @@ var scrapeTimeEntriesClean = function(models, serviceRequestObject, parameters) 
         return deferred.promise;
     }
 
-    return scrapeTimeEntries(parameters.appconfig, models, parameters.userId, parameters.username, parameters.password, parameters.startDate, parameters.endDate)
+    return scrapeTimeEntries(parameters.appconfig, models, userId, parameters.username, parameters.password, parameters.startDate, parameters.endDate)
         .then(function(resolveObject) {
             //Scraped all timeEntries. Now we can persist them
             //Delete, then save, then finish by updating servicerequest.
-            return deleteCurrentEntries(models, parameters.userId, parameters.startDate, parameters.endDate)
+
+            return deleteCurrentEntries(models, userId, parameters.startDate, parameters.endDate)
                 .then(function() {
                     return persistNewEntries(models, scrapingResultObj.timeEntries);
                 })
                 .then(function() {
+                    var deferred = Q.defer();
                     serviceRequestObject.status = 'finished';
                     serviceRequestObject.observation = resolveObject.messages.join('\n');
-
                     serviceRequestObject.save(function(err, o) {
-                        console.log('persisted serviceRequestObject: ' + JSON.stringify(o));
+                        deferred.resolve(o);
+                        return o;
                     });
+                    //need to return promise from here.
+                    return deferred.promise;
+
                 });
 
         });

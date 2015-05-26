@@ -9,6 +9,8 @@ var _ = require('lodash');
 // var kdutils = require('./kdutils');
 // var moment = require('moment');
 var PhaseController = require('./PhaseController');
+var crypto = require('crypto');
+var validator = require('validator');
 
 var conf;
 
@@ -140,6 +142,40 @@ function createAuthenticationMiddleware(resourceHandlerName, operation, callback
 }
 
 
+function createGoogleLoginUrl(req) {
+        var referer = getReferer(req);
+
+        //create cross-site request forgery (CSRF) token
+        var sess = req.session;
+
+        var buf = crypto.pseudoRandomBytes(256);
+        var md5 = crypto.createHash('md5');
+
+        md5.update(buf);
+        var statetoken = md5.digest('base64');
+        statetoken = validator.blacklist(statetoken, ':/\\?#\\[\\]@!\\$&\'\\(\\)\\*\\+,;=') + 'referer=' + referer;
+
+
+
+
+        //put into session for later use.
+        sess.statetoken = statetoken;
+        console.log('generated CSRF token: ' + statetoken);
+
+
+        var loginurl = conf.google.authenticationendpoint + '?' +
+            'client_id=' + conf.google.applicationid + '&' +
+            'response_type=code&' +
+            'scope=' + conf.google.authenticationscope + '&' +
+            'redirect_uri=' + conf.google.callbackurl + '&' +
+            'approval_prompt=' + conf.google.approvalPrompt + '&' +
+            'state=' + statetoken;
+
+        return loginurl;
+
+    }
+
+
 function hidrateZidecoUser(user, callback) {
     //Criar promessa
     //Remove P do ponto para adequaro ao KD.
@@ -258,7 +294,8 @@ module.exports = function(parconf) {
         hidrateZidecoUser: hidrateZidecoUser,
         invalidateUser: invalidateUser,
         createAuthenticationMiddleware: createAuthenticationMiddleware,
-        getReferer:getReferer
+        getReferer:getReferer,
+        createGoogleLoginUrl: createGoogleLoginUrl
             // ,
             // Usuario:Usuario
     };

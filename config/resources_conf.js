@@ -36,67 +36,51 @@ conf.defaults = {
     // resources: {
 
     protegido: [
-    'timeentry',
-    'timeperiod'
+        'timeentry',
+        'timeperiod',
 
-        // 'pocpool',
-        // 'pochello',
-
-        // {
-        //     resourceName: 'usuariocorrente',
-        //     validOperations: [{
-        //         verb: 'get',
-        //         func: 'get',
-        //         idInRoute: false
-        //     }, {
-        //         verb: 'get',
-        //         func: 'find',
-        //         idInRoute: true
-        //     }],
-        //     subresources: [{
-        //         resourceName: 'foto',
-        //         validOperations: [{
-        //             verb: 'get',
-        //             func: 'find',
-        //             idInRoute: true
-        //         }, {
-        //             verb: 'post',
-        //             func: 'ins',
-        //             idInRoute: true
-        //         }, {
-        //             verb: 'delete',
-        //             func: 'del',
-        //             idInRoute: true
-        //         }]
-        //     }]
-        // },
-
-
-
-
+        {
+            resourceName: 'maxscrapedtimeentry',
+            validOperations: [{
+                verb: 'get',
+                func: 'get',
+                idInRoute: false
+            }]
+        }
     ],
 
 
     public: [
+
         'simpleroute',
         'currency',
-        
-        'zidecouser', {
+
+        'zidecouser', 
+        {
+            resourceName: 'message',
+            validOperations: [{
+                verb: 'get',
+                func: 'get',
+                idInRoute: false
+            }]
+
+        },
+
+        {
             resourceName: 'servicerequest',
             validOperations: [{
-                    verb: 'get',
-                    func: 'find',
-                    idInRoute: true
-                }, {
-                    verb: 'get',
-                    func: 'get',
-                    idInRoute: false
-                }, {
-                    verb: 'post',
-                    func: 'ins',
-                    idInRoute: false
-                }
-            ]
+                verb: 'get',
+                func: 'find',
+                idInRoute: true
+            }, {
+                verb: 'get',
+                func: 'get',
+                idInRoute: false
+            }, {
+                verb: 'post',
+                func: 'ins',
+                idInRoute: false
+            }]
 
         }
 

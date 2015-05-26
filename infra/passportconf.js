@@ -28,8 +28,7 @@ module.exports = function(passport, models) {
 
     // used to deserialize the user
     passport.deserializeUser(function(user, done) {
-        var zidecoUser = new models.ZidecoUser(user);
-        // user = new Usuario(user);
+        var zidecoUser = models.ZidecoUser.getUnPersistableInstance(user);
         done(null, zidecoUser);
 
 
