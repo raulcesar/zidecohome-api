@@ -78,7 +78,8 @@ Strategy.prototype.authenticate = function(req, options) {
     options = options || {};
 
     //Get the code for google authentication.
-    var code = req.param('code');
+    var code = req.query.code;
+    //param('code');
 
     //If no code, than fail, and allow the "failure" redirect to send user to GOOGLE login page
     if (!code) {

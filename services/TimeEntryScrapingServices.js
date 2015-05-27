@@ -185,6 +185,10 @@ var persistNewEntries = function(models, timeEntries) {
 
 
 var scrapeTimeEntriesClean = function(models, serviceRequestObject, parameters) {
+    scrapingResultObj = {
+        messages: [],
+        timeEntries: []
+    };
     //Run stuff. When finished, save new satus for serviceRequestObject
     var deferred = Q.defer();
     console.log('Will run scrapeTimeEntriesClean for period: ' + parameters.startDate + ' to ' + parameters.endDate);
@@ -193,6 +197,11 @@ var scrapeTimeEntriesClean = function(models, serviceRequestObject, parameters) 
     if (parameters && !parameters.userId && parameters.req && parameters.req.user) {
         userId = parameters.req.user.id;
     }
+
+    // //If we did not get a userId from request, check in parameters... (we should check)
+    // if (!userId && parameters) {
+    //     userId = parameters.userId;
+    // }
 
 
     //The service for timeentry processing should, at the least, have a username and password that we will need to authenticate before scraping.
@@ -234,7 +243,6 @@ var scrapeTimeEntriesClean = function(models, serviceRequestObject, parameters) 
                 });
 
         });
-
 };
 
 module.exports = {

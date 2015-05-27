@@ -12,12 +12,19 @@ var eventosio = require('../infra/eventosIoSocket');
 var resourceName = 'ServiceRequest';
 
 
-var TimeEntryServices = require('../services/TimeEntryService');
-var TimeEntryScrapingServices = require('../services/TimeEntryScrapingService');
+//The requires and "ServicesByCategories" map below is really just an index. We could do the "require dynamically"
+//TODO: do dynamic require (like inside the SequencedServicesService)
+var TimeEntryServices = require('../services/TimeEntryServices');
+var TimeEntryScrapingServices = require('../services/TimeEntryScrapingServices');
+var SequencedServicesService = require('../services/SequencedServicesService');
+var TestingServices = require('../services/TestingServices');
 
 var ServicesByCategories = {
     TimeEntryServices: TimeEntryServices,
-    TimeEntryScrapingServices: TimeEntryScrapingServices
+    TimeEntryScrapingServices: TimeEntryScrapingServices,
+    SequencedServicesService: SequencedServicesService,
+    TestingServices: TestingServices
+
 };
 
 function handleGet(req, res) {
@@ -48,20 +55,37 @@ function handleIns(req, res) {
 
 
     req.ormmodels.ServiceRequest.create(recievedObject, function(err, savedObject) {
+        var io = req.io;
         service(req.ormmodels, savedObject, serviceParameters).then(function(finishedServiceObj) {
-            var io = req.io;
             var messageObj = {
                 serviceRequestObj: finishedServiceObj
             };
+            if (finishedServiceObj.status === 'failed') {
+                messageObj.error = 'Failed sequenced service. ' + finishedServiceObj.observation;
+            }
 
             if (!io) {
-                console.log('No io to send message... but service request finished: ' + messageObj );
+                console.log('No io to send message... but service request finished: ' + messageObj);
                 return;
             }
-            console.log('Going to try to send message via IO: ' + messageObj );
+            console.log('Going to try to send message via IO: ' + messageObj);
 
             //Call io to send socket message.
             io.sockets.emit(eventosio.zEvtServiceRequestDone, messageObj);
+        }, function(error) {
+            var messageObj = {
+                error: error,
+                serviceRequestObj: savedObject
+            };
+
+            if (!io) {
+                console.log('No io to send message... but service request FAILED: ' + error);
+                return;
+            }
+            console.log('Going to try to send message via IO. Service faled: ' + JSON.stringify(messageObj));
+
+            //Call io to send socket message.
+            io.sockets.emit(eventosio.zEvtServiceRequestDone, messageObj); /**/
         });
         res.send(savedObject);
     });
