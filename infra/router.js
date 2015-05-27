@@ -154,7 +154,7 @@ exports.run = function route(app, conf, passport) {
     app.get('/logingoogle', function(req, res) {
         var loginurl = authenticationUtil.createGoogleLoginUrl(req);
 
-        res.send(401, {
+        res.status(401).send({
             loginat: loginurl
         });
     });
@@ -173,7 +173,8 @@ exports.run = function route(app, conf, passport) {
         //First we get the 'state' to validate that the client is valid.
         var sess = req.session;
         var stateFromSession = sess.statetoken;
-        var stateFromRequest = req.param('state');
+        var stateFromRequest = req.query.state;
+        // req.param('state');
 
         if (stateFromRequest !== stateFromSession) {
             console.log('stateFromRequest: ' + stateFromRequest);

@@ -29,7 +29,7 @@ var conf;
   //   res.redirect(conf.application.apiroute + '/logingoogle' + '?referer=' + referer);
   // }
   function getReferer(req) {
-    return req.param('referer') || req.header('referer') || 'http://localhost:9000';
+    return req.params.referer || req.header('referer') || 'http://localhost:9000';
   }
 
 

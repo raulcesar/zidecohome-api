@@ -8,79 +8,66 @@ var Q = require('q');
 var PhaseController = require('../infra/PhaseController');
 
 
-
-var phaseController;
-var deferredScrapeEntries;
-var scrapingResultObj = {
-    messages: [],
-    timeEntries: []
-};
-
-
-var scrapingAllDone = function() {
-    deferredScrapeEntries.resolve(scrapingResultObj);
-};
-
-
-var $;
-var processdata = function(userId, day, data) {
-    var msg;
-    var dateString, timeString;
-
-    msg = 'Going to scrape page for day ' + day.format('DD/MM/YYYY') + ' for possible time entries ';
-    scrapingResultObj.messages.push(msg);
-
-    data.each(function(i, elem) {
-        //Every odd item should be a date.
-
-        var test = $(elem).text();
-
-        if (test.indexOf('/') >= 0) {
-            dateString = test.trim();
-            if ((i % 2) !== 0) {
-                msg = 'Probable error trying to scrape date value from day ' + day.format('DD/MM/YYYY') + '. i should be even, but is: ' + i;
-                scrapingResultObj.messages.push(msg);
-            }
-        } else if (test.indexOf(':') >= 0) {
-            timeString = test.trim();
-            var entryMoment = moment(dateString + ' ' + timeString, 'DD/MM/YYYY hh:mm');
-
-            var timeEntry = {
-                entryTime: entryMoment.toDate(),
-                origin: 'scraped',
-                status: 'unprocessed',
-                user_id: userId
-            };
-
-            scrapingResultObj.timeEntries.push(timeEntry);
-
-            if ((i % 2) === 0) {
-                msg = 'Probable error trying to scrape time value from day ' + day.format('DD/MM/YYYY') + '. i should be odd, but is: ' + i;
-                scrapingResultObj.messages.push(msg);
-            }
-        } else {
-            msg = 'Probable error trying to scrape day. Should have only dates and times, but got: ' + test;
-            scrapingResultObj.messages.push(msg);
-        }
-    });
-
-    // _.each(entries, function(entry) {
-    //     //Insert into database!
-    //     console.log(entry.format('DD/MM/YYYY hh:mm'));
-    // });
-
-    phaseController.endPhase('processdayX', scrapingAllDone);
-};
-
-
-
-
-
-
-
-
-
 var scrapeTimeEntries = function(appconfig, models, userId, username, password, startDate, endDate) {
+    var phaseController;
+    var deferredScrapeEntries;
+    var scrapingResultObj = {
+        messages: [],
+        timeEntries: []
+    };
+    var $;
+
+
+    var scrapingAllDone = function() {
+        deferredScrapeEntries.resolve(scrapingResultObj);
+    };
+
+    var processdata = function(userId, day, data) {
+        var msg;
+        var dateString, timeString;
+
+        msg = 'Going to scrape page for day ' + day.format('DD/MM/YYYY') + ' for possible time entries ';
+        scrapingResultObj.messages.push(msg);
+
+        data.each(function(i, elem) {
+            //Every odd item should be a date.
+
+            var test = $(elem).text();
+
+            if (test.indexOf('/') >= 0) {
+                dateString = test.trim();
+                if ((i % 2) !== 0) {
+                    msg = 'Probable error trying to scrape date value from day ' + day.format('DD/MM/YYYY') + '. i should be even, but is: ' + i;
+                    scrapingResultObj.messages.push(msg);
+                }
+            } else if (test.indexOf(':') >= 0) {
+                timeString = test.trim();
+                var entryMoment = moment(dateString + ' ' + timeString, 'DD/MM/YYYY hh:mm');
+
+                var timeEntry = {
+                    entryTime: entryMoment.toDate(),
+                    origin: 'scraped',
+                    status: 'unprocessed',
+                    user_id: userId
+                };
+
+                scrapingResultObj.timeEntries.push(timeEntry);
+
+                if ((i % 2) === 0) {
+                    msg = 'Probable error trying to scrape time value from day ' + day.format('DD/MM/YYYY') + '. i should be odd, but is: ' + i;
+                    scrapingResultObj.messages.push(msg);
+                }
+            } else {
+                msg = 'Probable error trying to scrape day. Should have only dates and times, but got: ' + test;
+                scrapingResultObj.messages.push(msg);
+            }
+        });
+
+        phaseController.endPhase('processdayX', scrapingAllDone);
+    };
+
+
+
 
     deferredScrapeEntries = Q.defer();
     startDate = moment(startDate);
@@ -103,7 +90,7 @@ var scrapeTimeEntries = function(appconfig, models, userId, username, password, 
             scrapingResultObj.messages.push('Inside of function created by processReturnData. Day closuer: ' + day.format('DD/MM/YYYY'));
 
             $ = cheerio.load(body);
-            $('#dtListagem').filter(function(obj) {
+            $('#dtListagem').filter(function() {
                 var data = $(this).children('tbody').children('tr').children('td');
                 processdata(userId, day, data);
             });
@@ -161,15 +148,9 @@ var deleteCurrentEntries = function(models, userId, startDate, endDate) {
 };
 
 
-var persistNewEntries = function(models, timeEntries) {
-
+var persistNewEntries = function(models, scrapingResultObj) {
     var dbDefered = Q.defer();
-    //TODO: use transaction plugin.
-    // models.db.transaction(function (err, transaction) {
-    // });
-
-
-    models.TimeEntry.create(timeEntries, function(err, data) {
+    models.TimeEntry.create(scrapingResultObj.timeEntries, function(err, data) {
         if (err) {
             var msg = 'Error when creating timeEntry: ' + err;
             scrapingResultObj.messages.push(msg);
@@ -185,6 +166,10 @@ var persistNewEntries = function(models, timeEntries) {
 
 
 var scrapeTimeEntriesClean = function(models, serviceRequestObject, parameters) {
+    // scrapingResultObj = {
+    //     messages: [],
+    //     timeEntries: []
+    // };
     //Run stuff. When finished, save new satus for serviceRequestObject
     var deferred = Q.defer();
     console.log('Will run scrapeTimeEntriesClean for period: ' + parameters.startDate + ' to ' + parameters.endDate);
@@ -193,6 +178,11 @@ var scrapeTimeEntriesClean = function(models, serviceRequestObject, parameters) 
     if (parameters && !parameters.userId && parameters.req && parameters.req.user) {
         userId = parameters.req.user.id;
     }
+
+    // //If we did not get a userId from request, check in parameters... (we should check)
+    // if (!userId && parameters) {
+    //     userId = parameters.userId;
+    // }
 
 
     //The service for timeentry processing should, at the least, have a username and password that we will need to authenticate before scraping.
@@ -218,7 +208,8 @@ var scrapeTimeEntriesClean = function(models, serviceRequestObject, parameters) 
 
             return deleteCurrentEntries(models, userId, parameters.startDate, parameters.endDate)
                 .then(function() {
-                    return persistNewEntries(models, scrapingResultObj.timeEntries);
+                    // return persistNewEntries(models, scrapingResultObj.timeEntries);
+                    return persistNewEntries(models, resolveObject);
                 })
                 .then(function() {
                     var deferred = Q.defer();
@@ -234,7 +225,6 @@ var scrapeTimeEntriesClean = function(models, serviceRequestObject, parameters) 
                 });
 
         });
-
 };
 
 module.exports = {

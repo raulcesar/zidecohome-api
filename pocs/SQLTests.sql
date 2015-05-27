@@ -12,7 +12,7 @@ select * from "ValidPeriodAuthorization"
 2015-05-05 19:09:00-03 | 2015-05-05 21:01:00-03 | 2015-05-05 00:00:00-03 |        112 |          112
 
 
-
+NOT DELETING TIME ENTRIES!!!
 
 select * from currency;
 delete from currency where id >= 2;

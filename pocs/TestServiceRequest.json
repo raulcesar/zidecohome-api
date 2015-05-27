@@ -19,3 +19,102 @@
         "endDate": "2015-05-15"
     }
 }
+
+
+//Sequenced Services
+//innerServiceRequestObjects
+{
+    "serviceCategory": "SequencedServicesService",
+    "serviceName": "runServices",
+    "serviceParameters": {
+        "innerServiceRequestObjects": [
+            {
+                "serviceCategory": "TimeEntryScrapingServices",
+                "serviceName": "scrapeTimeEntriesClean",
+                "serviceParameters": {
+                    "userId": "2",
+                    "username": "2",
+                    "password": "",
+                    "startDate": "2015-05-01",
+                    "endDate": "2015-06-01"
+                }
+            },
+            {
+                "serviceCategory": "TimeEntryServices",
+                "serviceName": "processTimeEntriesClean",
+                "serviceParameters": {
+                    "userId": "2",
+                    "startDate": "2015-05-01",
+                    "endDate": "2015-05-10"
+                }
+            }
+
+
+        ]
+    }
+
+}
+
+
+//TEST SERVICES:
+//TEST SERVICE 1
+{
+    "serviceCategory": "TestingServices",
+    "serviceName": "testService1",
+    "serviceParameters": {
+        "userId": "2",
+        "startDate": "2015-05-01",
+        "endDate": "2015-06-01"
+    }
+}
+//TEST SERVICE 2
+{
+    "serviceCategory": "TestingServices",
+    "serviceName": "testService2",
+    "serviceParameters": {
+        "userId": "2",
+        "parameter1": "Foo",
+        "parameter2": "Bar"
+    }
+}
+
+//SEQUENCED SERVICE WITH TESTSERVICE1 AND 2
+{
+    "serviceCategory": "SequencedServicesService",
+    "serviceName": "runServices",
+    "serviceParameters": {
+        "innerServiceRequestObjects": [
+
+            {
+                "serviceCategory": "TestingServices",
+                "serviceName": "testService1",
+                "serviceParameters": {
+                    "userId": "2",
+                    "startDate": "2015-05-01",
+                    "endDate": "2015-06-01"
+                }
+            },
+            {
+                "serviceCategory": "TestingServices",
+                "serviceName": "testService1",
+                "serviceParameters": {
+                    "userId": "2",
+                    "startDate": "2015-05-01",
+                    "endDate": "2015-06-01"
+                }
+            },
+
+            {
+                "serviceCategory": "TestingServices",
+                "serviceName": "testService2",
+                "serviceParameters": {
+                    "userId": "2",
+                    "parameter1": "Foo",
+                    "parameter2": "Bar"
+                }
+            }
+
+        ]
+    }
+
+}
