@@ -34,23 +34,6 @@ module.exports = function(passport, models) {
 
     });
 
-    //    // =========================================================================
-    //    //            GoogleStrategy
-    //    // =========================================================================
-    //  passport.use("google", new GoogleStrategy({
-    //              returnURL: "http://www.rault.org:3030/auth/google/return",
-    //              realm: "http://www.rault.org:3030/"
-    //          },
-    //          function(identifier, profile, done) {
-    //              User.findOrCreate({ openId: identifier }, function(err, user) {
-    //                  done(err, user);
-    //              });
-    //          }
-    //      )
-    //
-    //
-    //  );
-
     // =========================================================================
     //                      estrategia google (criada por nos)
     // =========================================================================

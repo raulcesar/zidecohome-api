@@ -74,8 +74,12 @@ util.inherits(Strategy, passport.Strategy);
  * @param {Object} options
  * @api protected
  */
-Strategy.prototype.authenticate = function(req, options) {
-    options = options || {};
+Strategy.prototype.authenticate = function(req, customOptions) {
+    var options = {};
+    // options = options || {};
+    var defaultOptions = this.options;
+    _.assign(options, defaultOptions, customOptions);
+
 
     //Get the code for google authentication.
     var code = req.query.code;
@@ -103,16 +107,18 @@ Strategy.prototype.authenticate = function(req, options) {
     try {
         //Here we will attempt to call the token validation at google
         //Also, send function callback that will "verify" the user.
-        this.codeValidate(code, options.model, verified);
+        this.codeValidate(code, options, verified);
     } catch (ex) {
         return self.error(ex);
     }
 };
 
 
-Strategy.prototype.codeValidate = function(code, model, callback) {
+Strategy.prototype.codeValidate = function(code, options, callback) {
+    var model = options.model;
     /*jshint camelcase: false */
-    var globalOptions = this.options;
+    // var globalOptions = this.options;
+    var globalOptions = options;
 
     //Create options to post to google token endpoint and retrieve access token.
     var optionsForIDToken = {

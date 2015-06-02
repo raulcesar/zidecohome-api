@@ -8,8 +8,8 @@ exports.run = function route(app, conf, passport) {
 
     var resources = conf.application.resources;
     var handlers = {};
-
     var rotaDeValidacaoDeToken = conf.google.callbackroute;
+    var googleAppRedirectURI = conf.google.appRedirectURI;
 
 
     var qtdRotas = 0;
@@ -196,7 +196,8 @@ exports.run = function route(app, conf, passport) {
 
         //Authenticate with passport.
         passport.authenticate('googleoauth2clientside', {
-            model: req.ormmodels
+            model: req.ormmodels,
+            appRedirectURI: googleAppRedirectURI
         }, function(err, user, info) {
             if (err) {
                 return next(err);
