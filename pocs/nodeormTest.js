@@ -17,7 +17,7 @@ var testSave = function(user) {
 };
 //select * from "TimeEntryPeriod"
 // delete from "TimeEntryPeriod"
-//select * from "TimeEntry"
+//select * from "TimeEntry" where id >= 1323
 //select * from "ServiceRequest"
 
 
@@ -46,20 +46,35 @@ models(conf, function(m) {
 
 
 
-    var startDate = moment('01/05/2015', 'DD/MM/YYYY').toDate();
-    var endDate = moment('10/05/2015', 'DD/MM/YYYY').toDate();
+    // var startDate = moment('01/05/2015', 'DD/MM/YYYY').toDate();
+    // var endDate = moment('10/05/2015', 'DD/MM/YYYY').toDate();
 
 
-    var startTime = moment('01/05/2015 10:00', 'DD/MM/YYYY HH:mm');
-    var endTime = moment(startTime).add(1, 'hours');
+    // var startTime = moment('01/05/2015 10:00', 'DD/MM/YYYY HH:mm');
+    // var endTime = moment(startTime).add(1, 'hours');
 
-    var period = {
-        startTime: startTime.toDate(),
-        endTime: endTime.toDate(),
-        dayReference: startDate,
-        user_id: 2
-    };
-    var orm = m.orm;
+    // var period = {
+    //     startTime: startTime.toDate(),
+    //     endTime: endTime.toDate(),
+    //     dayReference: startDate,
+    //     user_id: 2
+    // };
+    // var orm = m.orm;
+    m.TimeEntry.get(1321, function(err, obj) {
+        obj.origin = 'scraped';
+        obj.save(function(err, newobj) {
+            console.log('newobj: ' + newobj);
+        });
+    });
+
+    // m.db.driver.remove('TimeEntry', {id: 1324}, function(err) {
+    //     console.log('error: ' + err);
+    // });
+
+    // m.TimeEntry.find({id: 132}).remove(function(err) {
+    //     console.log('error: ' + err);
+    // });
+
 
     // var periodos = [];
     // periodos[10] = '';
@@ -108,28 +123,28 @@ models(conf, function(m) {
     //     console.log('err: ' + err);
     // });
 
-    m.TimeEntry.getLastScrapedEntry(2).then(function(maxdata) {
-        console.log('max  (with number): ' + moment(maxdata).format('DD/MM/YYYY HH:mm'));
-    });
+    // m.TimeEntry.getLastScrapedEntry(2).then(function(maxdata) {
+    //     console.log('max  (with number): ' + moment(maxdata).format('DD/MM/YYYY HH:mm'));
+    // });
 
-    m.TimeEntry.getLastScrapedEntry({
-        user_id: 2
-    }).then(function(maxdata) {
-        console.log('max: (with object)' + moment(maxdata).format('DD/MM/YYYY HH:mm'));
-    });
+    // m.TimeEntry.getLastScrapedEntry({
+    //     user_id: 2
+    // }).then(function(maxdata) {
+    //     console.log('max: (with object)' + moment(maxdata).format('DD/MM/YYYY HH:mm'));
+    // });
 
-    var query = {
-        user_id: 2,
-        and: [{
-                entryTime: orm.gte(startDate)
-            }, {
-                entryTime: orm.lt(endDate)
-            }
-        ]
-    };
-    m.TimeEntry.getLastScrapedEntry(query).then(function(maxdata) {
-        console.log('max: (with complex object)' + moment(maxdata).format('DD/MM/YYYY HH:mm'));
-    });
+    // var query = {
+    //     user_id: 2,
+    //     and: [{
+    //             entryTime: orm.gte(startDate)
+    //         }, {
+    //             entryTime: orm.lt(endDate)
+    //         }
+    //     ]
+    // };
+    // m.TimeEntry.getLastScrapedEntry(query).then(function(maxdata) {
+    //     console.log('max: (with complex object)' + moment(maxdata).format('DD/MM/YYYY HH:mm'));
+    // });
 
     // console.log(m.TimeEntry.table);
 

@@ -24,7 +24,7 @@ var createTimeEntries = function(m, user) {
         // moment('04-05-2015 06:05', 'DD-MM-YYYY HH:mm'), //INVALID(for tests... did not really register this!)
         moment('04-05-2015 12:00', 'DD-MM-YYYY HH:mm'),
         moment('04-05-2015 12:30', 'DD-MM-YYYY HH:mm'),
-        moment('01-06-2015 12:00', 'DD-MM-YYYY HH:mm'),
+        moment('01-06-2015 12:00', 'DD-MM-YYYY HH:mm')
     ];
 
 

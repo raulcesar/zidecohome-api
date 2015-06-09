@@ -52,7 +52,7 @@ module.exports = function(models) {
     };
 
     TimeEntry.deleteUserEntriesOnPeriod = function(userID, startDate, endDate, excludedOrigins, callback) {
-        //We can use ORM to delete entries, by using a find and chaining a remove (See TimeEntryService for commented example anc caveat.)
+        //We can use ORM to delete entries, by using a find and chaining a remove (See TimeEntryService for commented example and caveat.)
 
         var deferred = Q.defer();
         var pars = ['unprocessed', userID, startDate, endDate];

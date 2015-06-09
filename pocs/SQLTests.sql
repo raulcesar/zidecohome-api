@@ -1,7 +1,8 @@
 select * from "ServiceRequest";
 delete from "ServiceRequest";
 select * from "TimeEntryPeriod" order by "dayReference", "startTime";
-select * from "TimeEntry";
+select * from "TimeEntry" where origin = 'manual';
+delete from "TimeEntry" where id = 1310
 select * from "ZidecoUserAlias"
 select * from "AuthorizedSchedule"
 select * from "UserXSchedule"

@@ -15,7 +15,7 @@ module.exports = function(models) {
         endTime: {
             type: 'date',
             time: true,
-            required: true
+            required: false
         },
         dayReference: {
             type: 'date',
