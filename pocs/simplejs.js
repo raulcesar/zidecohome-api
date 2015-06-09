@@ -50,25 +50,33 @@ var moment = require('moment');
 // console.log(moment(dayReference).hour(7).minute(30).format('DD/MM/YYYY hh:mm:ss'));
 
 
-var _ = require('lodash');
-var phases = ['phas1', 'phase2', 'phase3'];
+// var _ = require('lodash');
+// var phases = ['phas1', 'phase2', 'phase3'];
 
-var obj;
-// obj = _.zipWith([],phases, function(accumulator, value, index, group) {
-//     console.log('accumulator: ' + accumulator);
-//     console.log('value: ' + value);
-//     console.log('index: ' + index);
-//     console.log('group: ' + group);
-//     accumulator ++;
-// });
+// var obj;
+// // obj = _.zipWith([],phases, function(accumulator, value, index, group) {
+// //     console.log('accumulator: ' + accumulator);
+// //     console.log('value: ' + value);
+// //     console.log('index: ' + index);
+// //     console.log('group: ' + group);
+// //     accumulator ++;
+// // });
 
-obj = _.zipObject(phases, _.fill(_.clone(phases), false));
-console.log('obj: ' + JSON.stringify(obj));
-
-// obj = _.zipWith([1, 2], [10, 20], [100, 200], function(accumulator, value, index, group) {
-//     console.log('accumulator: ' + accumulator);
-//     console.log('value: ' + value);
-//     console.log('index: ' + index);
-//     console.log('group: ' + group);
-// });
+// obj = _.zipObject(phases, _.fill(_.clone(phases), false));
 // console.log('obj: ' + JSON.stringify(obj));
+
+// // obj = _.zipWith([1, 2], [10, 20], [100, 200], function(accumulator, value, index, group) {
+// //     console.log('accumulator: ' + accumulator);
+// //     console.log('value: ' + value);
+// //     console.log('index: ' + index);
+// //     console.log('group: ' + group);
+// // });
+// // console.log('obj: ' + JSON.stringify(obj));
+
+var entryErrado = moment('09/06/2015 09:08', 'DD/MM/YYYY HH:mm');
+var hoje = moment();
+
+console.log(entryErrado.day());
+console.log(hoje.day());
+var issame = entryErrado.isSame(hoje, 'day');
+console.log(issame);

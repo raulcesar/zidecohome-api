@@ -42,7 +42,7 @@ var generateEntryPeriodsSync = function(userId, entries) {
         return entry.entryTime;
     });
 
-    //Now lets eliminate invalid entries. We could try to automate the "correcting", but we'll let that be manual.
+    //Lets eliminate invalid entries. We could try to automate the "correcting", but we'll let that be manual.
     //Note that we don't eliminate invalid "late" entries. That's because these can be "caped off" easily when generating the period (if needs be).
     entries = _.filter(entries, function(entry) {
         var mEntry = moment(entry.entryTime);
@@ -71,7 +71,7 @@ var generateEntryPeriodsSync = function(userId, entries) {
     //Determine periods.
     //When we get here, the list should be good to go!
     var periods = [];
-    var period, startDate, startEntryId, endEntryId;
+    var period, startDate, startEntryId, endEntryId, dayReference;
     for (var i = 0; i < entries.length; i++) {
         var entry = entries[i];
         if (!startDate) {
@@ -81,7 +81,7 @@ var generateEntryPeriodsSync = function(userId, entries) {
             //Already have a startDate, but if this date is from after the "minhour" of the following day (or after 2 days), then 
             //We need to disregard the last startDate and choose this one as a new one. 
             //Since we are removing from the last entries BEFORE the minhour, we just have to check if it is another day.
-            var dayReference = moment(startDate).startOf('day');
+            dayReference = moment(startDate).startOf('day');
             var endDate = entry.entryTime;
             endEntryId = entry.id;
             var startDateForPeriod = startDate;
@@ -108,7 +108,6 @@ var generateEntryPeriodsSync = function(userId, entries) {
                     //Couldn't find a cap... oh well!
                     continue;
                 }
-
             }
 
             //Create our period
@@ -136,10 +135,26 @@ var generateEntryPeriodsSync = function(userId, entries) {
                 endMoment.isBefore(endNocturnalZone)) {
                 startDate = endMoment.add(1, 'minutes').startOf('minute').toDate();
             }
-
-
         }
     }
+
+    //Ended loop. Check if there is a valid start date. If there is, lets generate a period without endTime.
+    //Remember that inside the loop, when we find an "end date" we set startdate to undefined.
+    if (startDate) {
+
+        period = {
+            startTime: startDate,
+            endTime: null,
+            dayReference: moment(startDate).startOf('day').toDate(),
+
+            user_id: userId,
+            startentry_id: startEntryId
+        };
+        // calculateminutes(period);
+        periods.push(period);
+    }
+
+    console.log('loop ended');
     return periods;
 
 
@@ -147,7 +162,12 @@ var generateEntryPeriodsSync = function(userId, entries) {
 };
 var generateEntryPeriods = function(userId, entries) {
     return Q.fcall(function() {
-        return generateEntryPeriodsSync(userId, entries);
+        var periods = generateEntryPeriodsSync(userId, entries);
+
+        //No that we have the raw periods, we can process them further.
+        //1) Separate out "noctornul sessions"
+
+        return periods;
     });
 };
 
@@ -176,6 +196,10 @@ var persistNewEntries = function(models, periods) {
 
     return dbDefered.promise;
 };
+
+//Get AuthorizedSchedules
+//Get TimePeriodAutorization (nocturnal sessions).
+
 
 
 var processTimeEntries = function(models, userId, argStartDate, argEndDate, options) {
@@ -211,6 +235,8 @@ var processTimeEntries = function(models, userId, argStartDate, argEndDate, opti
             deferred.resolve();
             return;
         }
+
+
 
 
         //Now, we will chain some promisses that will run sequentially the following fases:
