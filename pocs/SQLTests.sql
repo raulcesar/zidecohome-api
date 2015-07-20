@@ -1,12 +1,15 @@
 select * from "ServiceRequest";
 delete from "ServiceRequest";
 select * from "TimeEntryPeriod" order by "dayReference", "startTime";
-select * from "TimeEntry" where origin = 'manual';
+select * from "TimeEntry" order by "entryTime" desc where origin = 'manual';
 delete from "TimeEntry" where id = 1310
 select * from "ZidecoUserAlias"
 select * from "AuthorizedSchedule"
 select * from "UserXSchedule"
 select * from "ValidPeriodAuthorization"
+
+select * from "TimeEntry" order by "entryTime" desc 
+select * from "TimeEntryPeriod" order by "dayReference", "startTime";
 
 2015-05-05 08:38:00-03 | 2015-05-05 14:28:00-03 | 2015-05-05 00:00:00-03 |        350 |          350
 2015-05-05 15:21:00-03 | 2015-05-05 19:08:00-03 | 2015-05-05 00:00:00-03 |        227 |          227
