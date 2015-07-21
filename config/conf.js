@@ -42,6 +42,11 @@ conf.defaults = {
         host: 'localhost',
         port: 3032
     },
+    rawSocketServer: {
+        host: 'localhost',
+        port: 3033
+
+    },
     validEnvs: {
         dev: 'development',
         prod: 'production'
