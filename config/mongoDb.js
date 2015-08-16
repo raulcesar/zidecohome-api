@@ -1,1 +1,2 @@
 //Configuration stuff for mongogit 
+//
