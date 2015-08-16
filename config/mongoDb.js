@@ -1,1 +1,1 @@
-//Configuration stuff for mongo
+//Configuration stuff for mongogit 
