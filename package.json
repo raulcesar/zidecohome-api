@@ -18,6 +18,7 @@
     "express-session": "^1.11.1",
     "formidable": "^1.0.15",
     "knex": "^0.7.3",
+    "linebyline": "0.0.9",
     "lodash": "^3.8.0",
     "mariasql": "^0.1.21",
     "minimist": "^1.1.3",

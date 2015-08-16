@@ -6,11 +6,12 @@
 var express = require('express'), //Express framework
     middleware = require('./infra/middleware'),
     iosocketserver = require('./infra/socketserver'),
-
     router = require('./infra/router'),
-    args = require('minimist')(process.argv.slice(2)),
-    passport = require('passport');
+    passport = require('passport'),
+    mongoDB = require('./config/mongoDb')
+    ;
 
+var args = require('minimist')(process.argv.slice(2));
 
 /// error handlers
 process.on('uncaughtException', function(err) {
@@ -34,10 +35,10 @@ process.on('uncaughtException', function(err) {
 //    });
 //});
 
-
-var configEnv = args.configenv || app.settings.env;
-//Create express server.
 var app = express();
+
+var configEnv = args.configenv || args._[0] || app.settings.env;
+//Create express server.
 var conf = require('./config/conf').get(configEnv); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
 var authenticationUtil = require('./infra/authenticationUtil')(conf);
 var zidecoUtils = require('./infra/zidecoUtils');
@@ -48,24 +49,9 @@ app.set('zUtils', zidecoUtils);
 app.set('conf', conf);
 
 
-// var ormConnectOpts = {
-//     host: conf.db.postgres.host,
-//     database: conf.db.postgres.database,
-//     user: conf.db.postgres.user,
-//     password: conf.db.postgres.password,
-//     protocol: 'postgres',
-//     // socketPath: '/var/run/mysqld/mysqld.sock',
-//     port: conf.db.postgres.port,
-//     query: {
-//         pool: true,
-//         debug: true
-//     }
-// };
-
 
 //We need to connect and define our modle before we can continue.
-var models = require('./models');
-models(conf, function(m) {
+require('./models')(conf, function(m) {
     app.set('ormmodels', m);
     require('./infra/passportconf')(passport, m); // pass passport for configuration
 
@@ -101,21 +87,3 @@ models(conf, function(m) {
 
     console.log('calling orm express');
 });
-
-
-// app.use(orm.express(ormConnectOpts, {
-//     define: function(db, models, next) {
-//         models.db = db;
-//         require('./models')({
-//             type: 'middleware',
-//             models: models
-//         }); //ORM will be needed for passport 
-//         //Define all models and 
-//         app.set('ormmodels', models);
-//         console.log('calling orm express');
-
-//         // models.person = db.define("person", {...
-//         // });
-//         next();
-//     }
-// }));
