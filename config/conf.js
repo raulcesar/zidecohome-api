@@ -11,8 +11,18 @@ var tool = require('cloneextend'),
 
 
 
-// conf.production = {
-// };
+conf.cronos64 = {
+    db: {
+        postgres: {
+            host: 'cronos64',
+            user: 'zideco',
+            password: 'zideco',
+            database: 'postgres',
+            port: 5432
+        }
+    },
+
+};
 
 
 conf.defaults = {
@@ -21,7 +31,7 @@ conf.defaults = {
             host: 'localhost',
             user: 'zideco',
             password: 'zideco',
-            database: 'zideco',
+            database: 'postgres',
             port: 5432
         }
     },
