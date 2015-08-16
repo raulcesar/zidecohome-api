@@ -8,6 +8,7 @@ var express = require('express'), //Express framework
     iosocketserver = require('./infra/socketserver'),
 
     router = require('./infra/router'),
+    args = require('minimist')(process.argv.slice(2)),
     passport = require('passport');
 
 
@@ -34,10 +35,10 @@ process.on('uncaughtException', function(err) {
 //});
 
 
-
+var configEnv = args.configenv || app.settings.env;
 //Create express server.
 var app = express();
-var conf = require('./config/conf').get(app.settings.env); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
+var conf = require('./config/conf').get(configEnv); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
 var authenticationUtil = require('./infra/authenticationUtil')(conf);
 var zidecoUtils = require('./infra/zidecoUtils');
 // var orm = require('./submodules/orm/lib/ORM');
