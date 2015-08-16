@@ -50,8 +50,19 @@ app.set('conf', conf);
 
 
 
+
+//Bring in models from mongoose (TODO: STILL LEARNING)
+// var userModel = require('./mdbModel/User');
+// userModel.find({}, function(err, docs) {
+//     console.log(JSON.stringify(docs));
+// });
+var models = require('./mdbModel')(conf)
+models.models.user.find({}, function(err, docs) {
+    console.log(JSON.stringify(docs));
+});
+
 //We need to connect and define our modle before we can continue.
-require('./models')(conf, function(m) {
+require('./relmodels')(conf, function(m) {
     app.set('ormmodels', m);
     require('./infra/passportconf')(passport, m); // pass passport for configuration
 
