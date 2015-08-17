@@ -1,7 +1,9 @@
 'use strict';
 var _ = require('lodash');
 var fs = require('fs');
+var mongoDB = require('../config/mongoDb')
 var mongoose = require('mongoose');
+
 
 module.exports = function(conf, cb) {
 

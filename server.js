@@ -8,7 +8,7 @@ var express = require('express'), //Express framework
     iosocketserver = require('./infra/socketserver'),
     router = require('./infra/router'),
     passport = require('passport'),
-    mongoDB = require('./config/mongoDb')
+    
     ;
 
 var args = require('minimist')(process.argv.slice(2));

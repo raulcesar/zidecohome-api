@@ -4,7 +4,8 @@ var userSchema = new mongoose.Schema({
 	identifier: {type: String, required: true},
 	disabled: Boolean,
 	passhash: String,
-	experationDate: Date
+	experationDate: Date,
+	aliases: [String]
 
 });
 
