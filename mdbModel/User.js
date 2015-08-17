@@ -5,8 +5,12 @@ var userSchema = new mongoose.Schema({
 	disabled: Boolean,
 	passhash: String,
 	experationDate: Date,
-	aliases: [String]
-
+	aliases: [String],
+	roles: [{
+		code: String,
+		startDate: Date,
+		endDate: Date
+	}]
 });
 
 

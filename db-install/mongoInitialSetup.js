@@ -1,4 +1,5 @@
 var _ = require('lodash');
+var moment = require('moment');
 var args = require('minimist')(process.argv.slice(2));
 var configEnv = args.configenv || args._[0] || 'develop';
 
@@ -8,6 +9,7 @@ var conf = require('../config/conf').get(configEnv); //Objeto de configuração.
 var models = require('../mdbModel')(conf)
     //Include raul.
 console.log('vou tentear.')
+var begining = moment('2015/01/01', 'YYYY/MM/DD').toDate();
 var users = [
 
     {
@@ -16,7 +18,11 @@ var users = [
         aliases: [
             'raul.teixeira@gmail.com',
             'raul.teixeira@camara.gov.br'
-        ]
+        ],
+        roles: [{
+            code: 'SUPERUSER',
+            startDate: begining
+        }]
     }, {
         identifier: 'aline@zideco.org',
         disabled: false,
@@ -24,7 +30,9 @@ var users = [
     }
 ]
 
-models.models.user.remove({identifier: 'raul@zideco.org'}, function(err) {
+models.models.user.remove({
+    identifier: 'raul@zideco.org'
+}, function(err) {
     if (err) {
         console.log('deu pau: ' + err);
     }
@@ -32,8 +40,8 @@ models.models.user.remove({identifier: 'raul@zideco.org'}, function(err) {
 });
 
 models.models.user.create(users).then(function(ret) {
-	console.log('in callback');
-	console.log('users: ' + JSON.stringify(ret));
+    console.log('in callback');
+    console.log('users: ' + JSON.stringify(ret));
 
 });
 
