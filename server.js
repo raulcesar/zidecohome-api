@@ -7,7 +7,7 @@ var express = require('express'), //Express framework
     middleware = require('./infra/middleware'),
     iosocketserver = require('./infra/socketserver'),
     router = require('./infra/router'),
-    passport = require('passport'),
+    passport = require('passport')
     
     ;
 
