@@ -1,3 +1,4 @@
+'use strict';
 //Configuration stuff for mongo
 var linebyline = require('linebyline'),
 	mongoose = require('mongoose');
@@ -10,16 +11,17 @@ if (process.platform === 'win32') {
 	});
 	rl.on('SIGINT', function() {
 		process.emit('SIGINT');
-	})
+	});
 }
 
 var dbURI = 'mongodb://cronos64/zideco'; //TODO: GET FROM CONFIG
+dbURI = 'mongodb://localhost/zideco'; //TODO: GET FROM CONFIG
 
 var gracefullShutdown = function(msg, callback) {
 	mongoose.connection.close(function() {
 		console.log('Closing connection to mongoose @ ' + dbURI + ' by ' + msg);
 		callback();
-	})
+	});
 };
 
 
@@ -40,20 +42,20 @@ mongoose.connection.on('disconnected', function() {
 process.once('SIGUSR2', function() {
 	gracefullShutdown('nodemon restart', function() {
 		process.kill(process.pid, 'SIGUSR2');
-	})
+	});
 });
 
 process.once('SIGINT', function() {
 	gracefullShutdown('app termination', function() {
 		process.exit(0);
-	})
+	});
 });
 
 process.once('SIGTERM', function() {
 	gracefullShutdown('HEROKU app termination', function() {
 		process.exit(0);
-	})
+	});
 });
 
 
-module.exports = {}
+module.exports = {};

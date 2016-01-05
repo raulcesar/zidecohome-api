@@ -1,3 +1,4 @@
+'use strict';
 var _ = require('lodash');
 var moment = require('moment');
 var args = require('minimist')(process.argv.slice(2));
@@ -6,12 +7,11 @@ var configEnv = args.configenv || args._[0] || 'develop';
 
 //Create express server.
 var conf = require('../config/conf').get(configEnv); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
-var models = require('../mdbModel')(conf)
-    //Include raul.
-console.log('vou tentear.')
+var models = require('../mdbModel')(conf);
+//Include raul.
+
 var begining = moment('2015/01/01', 'YYYY/MM/DD').toDate();
 var users = [
-
     {
         identifier: 'raul@zideco.org',
         disabled: false,
@@ -28,7 +28,7 @@ var users = [
         disabled: false,
         aliases: ['aline.teixeira@gmail.com']
     }
-]
+];
 
 models.models.user.remove({
     identifier: 'raul@zideco.org'

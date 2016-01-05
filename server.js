@@ -56,7 +56,7 @@ app.set('conf', conf);
 // userModel.find({}, function(err, docs) {
 //     console.log(JSON.stringify(docs));
 // });
-var models = require('./mdbModel')(conf)
+var models = require('./mdbModel')(conf);
 models.models.user.find({}, function(err, docs) {
     console.log(JSON.stringify(docs));
 });

@@ -19,4 +19,4 @@ var schemaName = 'user';
 module.exports = {
 	schemaName: schemaName,
 	schemaValue: mongoose.model('user', userSchema)
-}
+};
