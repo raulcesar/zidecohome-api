@@ -1,0 +1,26 @@
+
+--Create roles
+curl -X POST http://vubuntuserver:5984/zidecofinance/ -d '{"code": "SU", "description": "Super User Role"}' -H "Content-Type: application/json"
+curl -X POST http://vubuntuserver:5984/zidecofinance/ -d '{"code": "PLAINUSER", "description": "Plain User Role"}' -H "Content-Type: application/json"
+
+
+--Create users
+curl -X POST http://vubuntuserver:5984/zidecofinance/ -d '{"identifier": "raul@zideco.org", "disabled": false, "aliases": ["raul@zideco.org", "raul.teixeira@gmail.com"], "rolecodes": ["SU", "PLAINUSER"]}' -H "Content-Type: application/json"
+
+curl -X POST http://vubuntuserver:5984/zidecofinance/ -d '{"identifier": "yara@zideco.org", "disabled": false, "aliases": ["yara@zideco.org", "yara.teixeira@gmail.com"], "rolecodes": ["PLAINUSER"]}' -H "Content-Type: application/json"
+
+curl -X POST http://vubuntuserver:5984/zidecofinance/ -d '{"identifier": "su", "disabled": false, "aliases": ["su"], "rolecodes": ["SU"]}' -H "Content-Type: application/json"
+
+
+curl -X PUT http://vubuntuserver:5984/zidecofinance/28ed3d19128603bd221612c472000d6a -d '{"_rev": "1-928282af1729f3b72e8940278cc7fa98", "identifier": "raul@zideco.org", "disabled": false, "aliases": ["raul@zideco.org", "raul.teixeira@gmail.com", "raul.teixeira@camara.gov.br"]}' -H "Content-Type: application/json"
+
+curl -X DELETE http://vubuntuserver:5984/zidecofinance/28ed3d19128603bd221612c472000d6a?rev=2-3b431dc65bfcd6ead4d3c0dc56dd9cf2
+
+
+curl -X GET http://vubuntuserver:5984/zidecofinance/28ed3d19128603bd221612c472000d6a?rev=1-928282af1729f3b72e8940278cc7fa98
+
+--Tests:
+curl -X GET http://vubuntuserver:5984/zidecofinance/_all_docs 
+
+
+curl "http://vubuntuserver:5984/zidecofinance/_design/zuser/_view/by_identifier?key=%22raul@zideco.org%22"

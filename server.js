@@ -35,9 +35,10 @@ process.on('uncaughtException', function(err) {
 //});
 
 
-var configEnv = args.configenv || app.settings.env;
 //Create express server.
 var app = express();
+
+var configEnv = args.configenv || app.settings.env;
 var conf = require('./config/conf').get(configEnv); //Objeto de configuração... varias entradas, baseada no process.env.NODE_ENV (PROD, DEV, etc.)
 var authenticationUtil = require('./infra/authenticationUtil')(conf);
 var zidecoUtils = require('./infra/zidecoUtils');
