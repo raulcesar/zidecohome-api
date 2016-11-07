@@ -50,8 +50,8 @@ var successConnectDB = function(nano) {
 
 
         nano.db.destroy('zidecofinance', function(err, body) {
-            console.log('Tried to destroy... err: ' + err);
             if (err) {
+                console.log('Tried to destroy... err: ' + err);
                 deferred.reject(err);
                 return;
             }
